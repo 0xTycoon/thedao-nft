@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.4;
 
 /*
@@ -15,7 +17,11 @@ minted into NFTs
 RULES
 
 1. Each NFT requires 1 DAO token to be minted
-2. The DAO token will
+2. The DAO token will be wrapped inside the NFT
+3. The DAO token can be unwrapped
+4. When unwrapped, the NFT gets transferred to the "Dead Address"
+5. The NFT can be restored from the "Dead Address" with 4 DAO restoration fee
+6. the restoration fee goes to the Curator
 
 command to convert pdf to images
 
@@ -23,54 +29,58 @@ $ pdftoppm TheDAO-SEC-34-81207.pdf TheDAO-art -png -x 1400 -y 2000 -W 10000 -r 1
 
 */
 
-//import "./safemath.sol";
+//import "./safemath.sol"; // we don't need it
 
-/**
-* "Non fungible CEO"
-* This is a NFT that gets transferred to the address that hold the CEO title.
-* Think of it as a "title belt" in boxing.
-* The purpose is so that the NFT will show up in CEOs gallery, so that everyone will be able to see it!
-*
-* Properties:
-* - There is only 1 NFT, NFT ID is 0
-* - Only the CIG token contract has permission to transfer it
-* - Admin key only used for deployment
-*
-*/
+
 contract TheNFT {
-    address public constant PNG_SHA_256_HASH = "232323"; // sha256 hash of all 18 bitmaps saved in the PNG format
-    address public constant PDF_SHA_256_HASH = "232323"; // sha256 hash of the original pdf file
-    address private constant DEAD_ADDRESS = address(0x74eda0);
-    address public admin;
+    bytes32 public constant PNG_SHA_256_HASH = "232323"; // sha256 hash of all 18 bitmaps saved in the PNG format
+    bytes32 public constant PDF_SHA_256_HASH = "232323"; // sha256 hash of the original pdf file
+    address private constant DEAD_ADDRESS = address(0x74eda0); // unwrapped NFTs go here
+    address public curator; // the curator receives restoration fees
     string private assetURL;
-
-    uint256 private constant max = 1800;
+    string private baseURI;
+    uint256 private constant max = 1800; // total supply
+    uint256 private constant fee = 4; // fee is the amount of DAO needed to restore
 
     // TheDAO stuff
     IERC20 private immutable theDAO; // the contract of TheDAO, the greatest DAO of all time
     uint256 private constant oneDao = 1e16; // 1 DAO = 16^10 wei or 0.01 ETH
 
-    mapping(address => uint256) public balanceOf; // counts of ownership
+    mapping(address => uint256) private balances; // counts of ownership
     mapping(uint256  => address) private ownership;
     mapping(uint256  => address) private approval;
     mapping(address => mapping(address => bool)) private approvalAll; // operator approvals
 
-    // Mint is fired when a new token is minted
+    /**
+     * Mint is fired when a new token is minted
+     */
     event Mint(address owner, uint256 tokenId);
-    // Burn is fired when a token is burned
+    /**
+     * @dev Burn is fired when a token is burned
+     */
     event Burn(address owner, uint256 tokenId);
-    // Restore is fired when a token is restored from the burn
+    /**
+     * @dev Restore is fired when a token is restored from the burn
+     */
     event Restore(address owner, uint256 tokenId);
+    /**
+     * @dev Curator is fired when a curator is changed
+     */
+    event Curator(address curator);
+    /**
+     * @dev BaseURI is fired when the baseURI changed (set by the Curator)
+     */
+    event BaseURI(string);
 
     constructor(address _theDAO) {
-        admin = msg.sender;
+        curator = msg.sender;
         theDAO = IERC20(_theDAO);
-        balanceOf[address(this)] = max;
+        balances[address(this)] = max; // track how many haven't been minted
     }
-    modifier onlyAdmin {
+    modifier onlyCurator {
         require(
-            msg.sender == admin,
-            "only admin can call this"
+            msg.sender == curator,
+            "only curator can call this"
         );
         _;
     }
@@ -79,11 +89,11 @@ contract TheNFT {
     * @dev mint mints a token. Requires 1 DAO to mint
     */
     function mint() external {
-        uint256 id = balanceOf[address(this)];
+        uint256 id = balances[address(this)];
         require (id < max, "minting finished");
         if (theDAO.transferFrom(msg.sender, address(this), oneDao)) { // take the 1 DAO fee
             _transfer(address(this), msg.sender, id);
-            Mint(msg.sender, id);
+            emit Mint(msg.sender, id);
         }
     }
 
@@ -91,10 +101,10 @@ contract TheNFT {
     * @dev burn gives 1 DAO back to the owner
     */
     function burn(uint256 id) external {
-        require (msg.sender == msg.sender == ownership[id], "only owner can burn");
+        require (msg.sender == ownership[id], "only owner can burn");
         if (theDAO.transfer(msg.sender, oneDao)) { // send theDAO token back to sender
             _transfer(msg.sender, DEAD_ADDRESS, id); // burn the NFT token
-            Burn(msg.sender, id);
+            emit Burn(msg.sender, id);
         }
     }
 
@@ -104,26 +114,41 @@ contract TheNFT {
     function restore(uint256 id) external {
         require (DEAD_ADDRESS == ownership[id], "must be dead");
         require (theDAO.transferFrom(msg.sender, address(this), oneDao), "DAO deposit insufficient");
-        require (theDAO.transferFrom(msg.sender, admin, oneDao*4), "DAO fee insufficient"); // Fee goes to admin
+        require (theDAO.transferFrom(msg.sender, curator, oneDao*fee), "DAO fee insufficient"); // Fee goes to the curator
         _transfer(DEAD_ADDRESS, msg.sender, id); // send the NFT token to the new owner
-        Restore(msg.sender, id);
+        emit Restore(msg.sender, id);
     }
     /**
-    * @dev burnAdmin burns the admin key
+    * @dev setCurator sets the curator address
     */
-    function setAdmin(address _admin) external onlyAdmin {
-        admin = _admin;
+    function setCurator(address _curator) external onlyCurator {
+        curator = _curator;
+        emit Curator(_curator);
     }
 
-    function setURI(string memory _uri) external onlyAdmin {
+    /**
+    * @dev setBaseURI sets the baseURI value
+    */
+    function setBaseURI(string memory _uri) external onlyCurator {
         baseURI = _uri;
+        emit BaseURI(_uri);
     }
 
     /***
     * ERC721 stuff
     */
-    address private holder; // the NFT owner
+
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
+
+    /**
+     * @dev Approval is fired when `owner` enables `approved` to manage the `tokenId` token.
+     */
+    event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
+
+    /**
+     * @dev ApprovalForAll is fired when `owner` enables or disables (`approved`) `operator` to manage all of its assets.
+     */
+    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
     function totalSupply() external view returns (uint256) {
         return max;
@@ -142,7 +167,7 @@ contract TheNFT {
 
     function balanceOf(address _holder) public view returns (uint256) {
         require (_holder != address(0));
-        return balanceOf[_holder];
+        return balances[_holder];
     }
 
     function name() public view returns (string memory) {
@@ -154,34 +179,34 @@ contract TheNFT {
     }
 
     function tokenURI(uint256 _tokenId) public view returns (string memory) {
-        require (_index < max, "index out of range");
+        require (_tokenId < max, "index out of range");
         string memory _baseURI = baseURI;
         return bytes(_baseURI).length > 0
-        ? string(abi.encodePacked(_baseURI, tokenId.toString()), ".png")
+        ? string(abi.encodePacked(_baseURI, toString(_tokenId)))
         : '';
         return assetURL;
     }
 
 
     function ownerOf(uint256 _tokenId) public view returns (address) {
-        require (_index < max, "index out of range");
+        require (_tokenId < max, "index out of range");
         address holder = ownership[_tokenId];
         require (holder != address(0));
         return holder;
     }
 
-    function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes memory data) external {
+    function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes memory _data) external {
         require (approval[_tokenId] == msg.sender);
         require (ownership[_tokenId] == _from, "_from not owner of token");
         _transfer(_from, _to, _tokenId);
-        require(_checkOnERC721Received(from, to, tokenId, _data), "ERC721: transfer to non ERC721Receiver implementer");
+        require(_checkOnERC721Received(_from, _to, _tokenId, _data), "ERC721: transfer to non ERC721Receiver implementer");
     }
 
     function safeTransferFrom(address _from, address _to, uint256 _tokenId) external {
         require (approval[_tokenId] == msg.sender);
         require (ownership[_tokenId] == _from, "_from not owner of token");
         _transfer(_from, _to, _tokenId);
-        require(_checkOnERC721Received(from, to, tokenId, ""), "ERC721: transfer to non ERC721Receiver implementer");
+        require(_checkOnERC721Received(_from, _to, _tokenId, ""), "ERC721: transfer to non ERC721Receiver implementer");
     }
 
     function transferFrom(address _from, address _to, uint256 _tokenId) external {
@@ -199,11 +224,11 @@ contract TheNFT {
     * @param _tokenId The NFT to approve
     */
     function approve(address _to, uint256 _tokenId) external {
-        require (_index < max, "index out of range");
+        require (_tokenId < max, "index out of range");
         address owner = ownership[_tokenId];
         require (owner == msg.sender || isApprovedForAll(owner, msg.sender), "not owner of token");
         approval[_tokenId] = _to;
-        emit Approval(msg.sender, _to, tokenId);
+        emit Approval(msg.sender, _to, _tokenId);
     }
     /**
     * @notice Enable or disable approval for a third party ("operator") to manage
@@ -215,8 +240,8 @@ contract TheNFT {
     */
     function setApprovalForAll(address _operator, bool _approved) external {
         require(msg.sender != _operator, "ERC721: approve to caller");
-        _operatorApprovals[msg.sender][operator] = _approved;
-        emit ApprovalForAll(msg.sender, operator, _approved);
+        approvalAll[msg.sender][_operator] = _approved;
+        emit ApprovalForAll(msg.sender, _operator, _approved);
     }
 
     /**
@@ -237,12 +262,12 @@ contract TheNFT {
     * @return True if `_operator` is an approved operator for `_owner`, false otherwise
     */
     function isApprovedForAll(address _owner, address _operator) public view returns (bool) {
-        return _operatorApprovals[_owner][_operator];
+        return approvalAll[_owner][_operator];
     }
 
     /**
     * @notice Query if a contract implements an interface
-    * @param interfaceID The interface identifier, as specified in ERC-165
+    * @param interfaceId The interface identifier, as specified in ERC-165
     * @dev Interface identification is specified in ERC-165. This function
     *  uses less than 30,000 gas.
     * @return `true` if the contract implements `interfaceID` and
@@ -264,8 +289,8 @@ contract TheNFT {
     * @param _tokenId the token index
     */
     function _transfer(address _from, address _to, uint256 _tokenId) internal {
-        balanceOf[_to]++;
-        balanceOf[_from]--;
+        balances[_to]++;
+        balances[_from]--;
         ownership[_tokenId] = _to;
         emit Transfer(_from, _to, _tokenId);
     }
@@ -294,7 +319,7 @@ contract TheNFT {
         uint256 tokenId,
         bytes memory _data
     ) private returns (bool) {
-        if (isContract()) {
+        if (isContract(to)) {
             try IERC721Receiver(to).onERC721Received(msg.sender, from, tokenId, _data) returns (bytes4 retval) {
                 return retval == IERC721Receiver.onERC721Received.selector;
             } catch (bytes memory reason) {
@@ -325,6 +350,36 @@ contract TheNFT {
         return size > 0;
     }
 
+
+
+    function toString(uint256 value) public view returns (string memory) {
+        // Inspired by openzeppelin's implementation - MIT licence
+        // https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Strings.sol#L15
+        // this version removes the decimals counting
+
+        uint8 count;
+        if (value == 0) {
+            return "0";
+        }
+        uint256 digits = 31;
+        // bytes and strings are big endian, so working on the buffer from right to left
+        // this means we won't need to reverse the string later
+        bytes memory buffer = new bytes(32);
+        while (value != 0) {
+            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
+            value /= 10;
+            digits -= 1;
+            count++;
+        }
+        uint256 temp;
+        assembly {
+            temp := mload(add(buffer, 32))
+            temp := shl(mul(sub(32,count),8), temp)
+            mstore(add(buffer, 32), temp)
+            mstore(buffer, count)
+        }
+        return string(buffer);
+    }
 }
 
 
@@ -615,4 +670,27 @@ interface IERC20 {
      * a call to {approve}. `value` is the new allowance.
      */
     event Approval(address indexed owner, address indexed spender, uint256 value);
+}
+
+/**
+ * @title ERC721 token receiver interface
+ * @dev Interface for any contract that wants to support safeTransfers
+ * from ERC721 asset contracts.
+ */
+interface IERC721Receiver {
+    /**
+     * @dev Whenever an {IERC721} `tokenId` token is transferred to this contract via {IERC721-safeTransferFrom}
+     * by `operator` from `from`, this function is called.
+     *
+     * It must return its Solidity selector to confirm the token transfer.
+     * If any other value is returned or the interface is not implemented by the recipient, the transfer will be reverted.
+     *
+     * The selector can be obtained in Solidity with `IERC721.onERC721Received.selector`.
+     */
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external returns (bytes4);
 }
