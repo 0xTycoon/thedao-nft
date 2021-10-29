@@ -29,6 +29,8 @@ $ pdftoppm TheDAO-SEC-34-81207.pdf TheDAO-art -png -x 1400 -y 2000 -W 10000 -r 1
 
 */
 
+import "hardhat/console.sol";
+
 //import "./safemath.sol"; // we don't need it
 
 
@@ -39,7 +41,7 @@ contract TheNFT {
     address public curator; // the curator receives restoration fees
     string private assetURL;
     string private baseURI;
-    uint256 private constant max = 1800; // total supply
+    uint256 private immutable max; // total supply (1800)
     uint256 private constant fee = 4; // fee is the amount of DAO needed to restore
 
     // TheDAO stuff
@@ -72,10 +74,16 @@ contract TheNFT {
      */
     event BaseURI(string);
 
-    constructor(address _theDAO) {
+    /**
+    * @dev TheNFT constructor
+    * @param _theDAO address of TheDAO contract
+    * @param _max max supply of the NFT collection
+    */
+    constructor(address _theDAO, uint256 _max) {
         curator = msg.sender;
         theDAO = IERC20(_theDAO);
-        balances[address(this)] = max; // track how many haven't been minted
+        balances[address(this)] = _max; // track how many haven't been minted
+        max = _max;
     }
     modifier onlyCurator {
         require(
@@ -86,10 +94,45 @@ contract TheNFT {
     }
 
     /**
+    * @dev regulators are not needed - smart contracts regulate themselves
+    */
+    modifier regulated(address _to) {
+        require(
+            _to != DEAD_ADDRESS,
+            "cannot send to dead address"
+        );
+        require(
+            _to != address(this),
+            "cannot send to self"
+        );
+        require(
+            _to != address(0),
+            "cannot send to 0x"
+        );
+        _;
+    }
+
+    /**
+    * @dev getStats helps to fetch some stats for the GUI in a single web3 call
+    * @param _user the address to return the report for
+    * @return uint256[5] the stats
+    */
+    function getStats(address _user) external view returns(uint256[] memory) {
+        uint[] memory ret = new uint[](18);
+        ret[0] = theDAO.balanceOf(_user);                // amount of TheDAO tokens owned by _user
+        ret[1] = theDAO.allowance(_user, address(this)); // amount of DAO this contract is approved to spend
+        ret[2] = balanceOf(address(this));               // how many NFTs to be minted
+        ret[3] = balanceOf(DEAD_ADDRESS);                // how many NFTs are burned
+        ret[4] = theDAO.balanceOf(address(this));        // amount of DAO held by this contract
+        return ret;
+    }
+
+    /**
     * @dev mint mints a token. Requires 1 DAO to mint
     */
     function mint() external {
-        uint256 id = balances[address(this)];
+        uint256 id = max - balances[address(this)];
+
         require (id < max, "minting finished");
         if (theDAO.transferFrom(msg.sender, address(this), oneDao)) { // take the 1 DAO fee
             _transfer(address(this), msg.sender, id);
@@ -187,7 +230,6 @@ contract TheNFT {
         return assetURL;
     }
 
-
     function ownerOf(uint256 _tokenId) public view returns (address) {
         require (_tokenId < max, "index out of range");
         address holder = ownership[_tokenId];
@@ -195,23 +237,32 @@ contract TheNFT {
         return holder;
     }
 
-    function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes memory _data) external {
-        require (approval[_tokenId] == msg.sender);
-        require (ownership[_tokenId] == _from, "_from not owner of token");
+    function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes memory _data) external regulated(_to) {
+        require (_tokenId < max, "index out of range");
+        address owner = ownership[_tokenId];
+        require(msg.sender == owner || approval[_tokenId] == msg.sender || approvalAll[owner][msg.sender],
+            "not permitted"
+        );
         _transfer(_from, _to, _tokenId);
         require(_checkOnERC721Received(_from, _to, _tokenId, _data), "ERC721: transfer to non ERC721Receiver implementer");
     }
 
-    function safeTransferFrom(address _from, address _to, uint256 _tokenId) external {
-        require (approval[_tokenId] == msg.sender);
-        require (ownership[_tokenId] == _from, "_from not owner of token");
+    function safeTransferFrom(address _from, address _to, uint256 _tokenId) external regulated(_to) {
+        require (_tokenId < max, "index out of range");
+        address owner = ownership[_tokenId];
+        require(msg.sender == owner || approval[_tokenId] == msg.sender || approvalAll[owner][msg.sender],
+            "not permitted"
+        );
         _transfer(_from, _to, _tokenId);
         require(_checkOnERC721Received(_from, _to, _tokenId, ""), "ERC721: transfer to non ERC721Receiver implementer");
     }
 
-    function transferFrom(address _from, address _to, uint256 _tokenId) external {
-        require (approval[_tokenId] == msg.sender);
-        require (ownership[_tokenId] == _from, "_from not owner of token");
+    function transferFrom(address _from, address _to, uint256 _tokenId) external regulated(_to) {
+        require (_tokenId < max, "index out of range");
+        address owner = ownership[_tokenId];
+        require(msg.sender == owner || approval[_tokenId] == msg.sender || approvalAll[owner][msg.sender],
+            "not permitted"
+        );
         _transfer(_from, _to, _tokenId);
     }
 
@@ -226,7 +277,7 @@ contract TheNFT {
     function approve(address _to, uint256 _tokenId) external {
         require (_tokenId < max, "index out of range");
         address owner = ownership[_tokenId];
-        require (owner == msg.sender || isApprovedForAll(owner, msg.sender), "not owner of token");
+        require (owner == msg.sender || isApprovedForAll(owner, msg.sender), "action not token permitted");
         approval[_tokenId] = _to;
         emit Approval(msg.sender, _to, _tokenId);
     }
@@ -293,6 +344,9 @@ contract TheNFT {
         balances[_from]--;
         ownership[_tokenId] = _to;
         emit Transfer(_from, _to, _tokenId);
+        console.log("from:", _from);
+        console.log("to:", _to);
+        console.log("bal:", balances[_to]);
     }
 
     // we do not allow NFTs to be send to this contract

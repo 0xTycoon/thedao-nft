@@ -3,6 +3,7 @@
 pragma solidity ^0.8.4;
 
 import "./safemath.sol";
+import "./TheNFT.sol";
 
 // PoolTokenMock is a mock contract for testing
 contract TheDAOMock {
@@ -74,6 +75,17 @@ contract TheDAOMock {
         allowance[msg.sender][_spender] = _value;
         emit Approval(msg.sender, _spender, _value);
         return true;
+    }
+
+    IERC721 private nft;
+
+    // fot testing only
+    function setNFT(address _nft) public {
+        nft = IERC721(_nft);
+    }
+
+    function testTransferFrom(address _from, address _to, uint256 _tokenId) public {
+        nft.transferFrom(_from, _to, _tokenId);
     }
 
 }
