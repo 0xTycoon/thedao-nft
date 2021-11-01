@@ -12,6 +12,8 @@ describe("TheDAONFT", function () {
 
   let ASSET_URL = "ipfs://2727838744/something/238374/";
 
+  let TOTAL_SUPPLY = 180;
+
   let feth = utils.formatEther;
   let peth = utils.parseEther;
 
@@ -30,7 +32,7 @@ describe("TheDAONFT", function () {
 
 
     TheNFT = await ethers.getContractFactory("TheNFT");
-    nft = await TheNFT.deploy(theDao.address, 180);
+    nft = await TheNFT.deploy(theDao.address, TOTAL_SUPPLY);
     await nft.deployed();
 
     await theDao.setNFT(nft.address);
@@ -59,27 +61,27 @@ describe("TheDAONFT", function () {
     // not approved
     await expect( nft.mint()).to.be.revertedWith("not approved");
 
-    // nft contract has 180 nft ready to mint
-    expect(await nft.balanceOf(nft.address)).to.be.equal(180);
+    // nft contract has TOTAL_SUPPLY nft ready to mint
+    expect(await nft.balanceOf(nft.address)).to.be.equal(TOTAL_SUPPLY);
 
     // approve
     expect(await theDao.approve(nft.address, peth("10"))).to.emit(theDao, 'Approval').withArgs(owner.address, nft.address, peth("10"));
 
     // now we can mint
-    for (let i = 0; i < 180; i++) {
+    for (let i = 0; i < TOTAL_SUPPLY; i++) {
       console.log(i);
       expect(await nft.mint()).to.emit(nft, 'Mint').withArgs(owner.address, i);
     }
     // all minted, we cannot mint anymore
     await expect( nft.mint()).to.be.revertedWith("minting finished");
 
-    // I should have 180 nft
-    expect(await nft.balanceOf(owner.address)).to.be.equal(180);
+    // I should have TOTAL_SUPPLY nft
+    expect(await nft.balanceOf(owner.address)).to.be.equal(TOTAL_SUPPLY);
 
     // nft contract has 0 nft ready to mint
     expect(await nft.balanceOf(nft.address)).to.be.equal(0);
 
-    // the NFT contract should hold 180 DAO
+    // the NFT contract should hold TOTAL_SUPPLY DAO
     expect(await theDao.balanceOf(nft.address)).to.be.equal(peth("1.8"));
 
   });
@@ -100,23 +102,42 @@ describe("TheDAONFT", function () {
     // test with approval
 
     expect(await nft.setApprovalForAll(theDao.address, true)).to.emit(nft, 'ApprovalForAll').withArgs(owner.address, theDao.address, true);
-    console.log("owner add:", owner.address);
-    console.log("simp add:", simp.address);
+
     // try the transfer again
     expect(await theDao.testTransferFrom(owner.address, simp.address, 42)).to.emit(nft, 'Transfer').withArgs(owner.address, simp.address, 42);
 
+    // simp should have 1 NFT now
     expect(await nft.balanceOf(simp.address)).to.be.equal(1);
 
     // simp account should have 1 NFT
 
     stats = await nft.getStats(simp.address);
-console.log(stats);
+
     expect(stats[0]).to.be.equal(peth('0')); // 0 dao tokens
     expect(stats[1]).to.be.equal(peth('0')); // 0 allowance
-    expect(stats[2]).to.be.equal(peth('0.000001'));
-    expect(stats[3]).to.be.equal(peth('0.000001'));
-    expect(stats[4]).to.be.equal(peth('0.000001'));
+    expect(stats[2]).to.be.equal(0);
+    expect(stats[3]).to.be.equal(peth('0'));
+    expect(stats[4]).to.be.equal(peth(TOTAL_SUPPLY+"").div("100")); // TOTAL_SUPPLY DAO
 
+    // test safeTransferFrom
+    await expect( nft['safeTransferFrom(address,address,uint256)'](owner.address, simp.address, 52)).to.emit(nft, 'Transfer').withArgs(owner.address, simp.address, 52);
+
+    stats = await nft.getStats(simp.address);
+    expect(stats[5]).to.be.equal(2); // simp should have 2 nfts now
+
+    // test with individual approval (simp approves nft-52 to elizabeth)
+
+    expect(await nft.connect(simp).approve(elizabeth.address, 52)).to.emit(nft, 'Approval').withArgs(simp.address, elizabeth.address, 52);
+
+    // check approval
+    expect(await nft.getApproved(52)).to.be.equal(elizabeth.address);
+
+    // now elizabeth's turn to take it, she has permission
+    // note that permission would be reset
+
+    await expect( nft.connect(elizabeth)['safeTransferFrom(address,address,uint256)'](simp.address, owner.address, 52)).to.emit(nft, 'Transfer').withArgs(simp.address, owner.address, 52).to.emit(nft, 'Approval').withArgs(elizabeth.address, "0x0000000000000000000000000000000000000000", 52);
+
+    // after transfer, the approval should be reset (elizabeth does not have approval)
 
   });
 

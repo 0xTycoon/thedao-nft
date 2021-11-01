@@ -29,7 +29,7 @@ $ pdftoppm TheDAO-SEC-34-81207.pdf TheDAO-art -png -x 1400 -y 2000 -W 10000 -r 1
 
 */
 
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 
 //import "./safemath.sol"; // we don't need it
 
@@ -115,15 +115,16 @@ contract TheNFT {
     /**
     * @dev getStats helps to fetch some stats for the GUI in a single web3 call
     * @param _user the address to return the report for
-    * @return uint256[5] the stats
+    * @return uint256[6] the stats
     */
     function getStats(address _user) external view returns(uint256[] memory) {
-        uint[] memory ret = new uint[](18);
+        uint[] memory ret = new uint[](6);
         ret[0] = theDAO.balanceOf(_user);                // amount of TheDAO tokens owned by _user
         ret[1] = theDAO.allowance(_user, address(this)); // amount of DAO this contract is approved to spend
         ret[2] = balanceOf(address(this));               // how many NFTs to be minted
         ret[3] = balanceOf(DEAD_ADDRESS);                // how many NFTs are burned
         ret[4] = theDAO.balanceOf(address(this));        // amount of DAO held by this contract
+        ret[5] = balanceOf(_user);                       // how many _user has
         return ret;
     }
 
@@ -132,8 +133,7 @@ contract TheNFT {
     */
     function mint() external {
         uint256 id = max - balances[address(this)];
-
-        require (id < max, "minting finished");
+        require(id < max, "minting finished");
         if (theDAO.transferFrom(msg.sender, address(this), oneDao)) { // take the 1 DAO fee
             _transfer(address(this), msg.sender, id);
             emit Mint(msg.sender, id);
@@ -155,9 +155,9 @@ contract TheNFT {
     * To restore, there will be a 4 DAO fee, so 5 DAO in total to restore
     */
     function restore(uint256 id) external {
-        require (DEAD_ADDRESS == ownership[id], "must be dead");
-        require (theDAO.transferFrom(msg.sender, address(this), oneDao), "DAO deposit insufficient");
-        require (theDAO.transferFrom(msg.sender, curator, oneDao*fee), "DAO fee insufficient"); // Fee goes to the curator
+        require(DEAD_ADDRESS == ownership[id], "must be dead");
+        require(theDAO.transferFrom(msg.sender, address(this), oneDao), "DAO deposit insufficient");
+        require(theDAO.transferFrom(msg.sender, curator, oneDao*fee), "DAO fee insufficient"); // Fee goes to the curator
         _transfer(DEAD_ADDRESS, msg.sender, id); // send the NFT token to the new owner
         emit Restore(msg.sender, id);
     }
@@ -237,33 +237,72 @@ contract TheNFT {
         return holder;
     }
 
+    /**
+    * @dev Throws unless `msg.sender` is the current owner, an authorized
+    *  operator, or the approved address for this NFT. Throws if `_from` is
+    *  not the current owner. Throws if `_to` is the zero address. Throws if
+    *  `_tokenId` is not a valid NFT.
+    * @param _from The current owner of the NFT
+    * @param _to The new owner
+    * @param _tokenId The NFT to transfer
+    */
     function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes memory _data) external regulated(_to) {
         require (_tokenId < max, "index out of range");
         address owner = ownership[_tokenId];
-        require(msg.sender == owner || approval[_tokenId] == msg.sender || approvalAll[owner][msg.sender],
-            "not permitted"
-        );
-        _transfer(_from, _to, _tokenId);
+        require (owner == _from, "_from must be owner");
+        require (_to != address(0), "_to most not be 0x");
+        if (msg.sender == owner || (approvalAll[owner][msg.sender])) {
+            _transfer(_from, _to, _tokenId);
+        } else if (approval[_tokenId] == msg.sender) {
+            approval[_tokenId] = address (0); // clear previous approval
+            emit Approval(msg.sender, address (0), _tokenId);
+            _transfer(_from, _to, _tokenId);
+        } else {
+            revert("not permitted");
+        }
         require(_checkOnERC721Received(_from, _to, _tokenId, _data), "ERC721: transfer to non ERC721Receiver implementer");
     }
 
+    /**
+    * @dev Throws unless `msg.sender` is the current owner, an authorized
+    *  operator, or the approved address for this NFT. Throws if `_from` is
+    *  not the current owner. Throws if `_to` is the zero address. Throws if
+    *  `_tokenId` is not a valid NFT.
+    * @param _from The current owner of the NFT
+    * @param _to The new owner
+    * @param _tokenId The NFT to transfer
+    */
     function safeTransferFrom(address _from, address _to, uint256 _tokenId) external regulated(_to) {
         require (_tokenId < max, "index out of range");
         address owner = ownership[_tokenId];
-        require(msg.sender == owner || approval[_tokenId] == msg.sender || approvalAll[owner][msg.sender],
-            "not permitted"
-        );
-        _transfer(_from, _to, _tokenId);
+        require (owner == _from, "_from must be owner");
+        require (_to != address(0), "_to most not be 0x");
+        if (msg.sender == owner || (approvalAll[owner][msg.sender])) {
+            _transfer(_from, _to, _tokenId);
+        } else if (approval[_tokenId] == msg.sender) {
+            approval[_tokenId] = address (0); // clear previous approval
+            emit Approval(msg.sender, address (0), _tokenId);
+            _transfer(_from, _to, _tokenId);
+        } else {
+            revert("not permitted");
+        }
         require(_checkOnERC721Received(_from, _to, _tokenId, ""), "ERC721: transfer to non ERC721Receiver implementer");
     }
 
     function transferFrom(address _from, address _to, uint256 _tokenId) external regulated(_to) {
         require (_tokenId < max, "index out of range");
         address owner = ownership[_tokenId];
-        require(msg.sender == owner || approval[_tokenId] == msg.sender || approvalAll[owner][msg.sender],
-            "not permitted"
-        );
-        _transfer(_from, _to, _tokenId);
+        require (owner == _from, "_from must be owner");
+        require (_to != address(0), "_to most not be 0x");
+        if (msg.sender == owner || (approvalAll[owner][msg.sender])) {
+            _transfer(_from, _to, _tokenId);
+        } else if (approval[_tokenId] == msg.sender) {
+            approval[_tokenId] = address (0); // clear previous approval
+            emit Approval(msg.sender, address (0), _tokenId);
+            _transfer(_from, _to, _tokenId);
+        } else {
+            revert("not permitted");
+        }
     }
 
     /**
@@ -344,9 +383,6 @@ contract TheNFT {
         balances[_from]--;
         ownership[_tokenId] = _to;
         emit Transfer(_from, _to, _tokenId);
-        console.log("from:", _from);
-        console.log("to:", _to);
-        console.log("bal:", balances[_to]);
     }
 
     // we do not allow NFTs to be send to this contract
