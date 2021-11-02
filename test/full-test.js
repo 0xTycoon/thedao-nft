@@ -13,6 +13,7 @@ describe("TheDAONFT", function () {
   let ASSET_URL = "ipfs://2727838744/something/238374/";
 
   let TOTAL_SUPPLY = 180;
+  let RESTORE_FEE = 4;
 
   let feth = utils.formatEther;
   let peth = utils.parseEther;
@@ -138,12 +139,33 @@ describe("TheDAONFT", function () {
     await expect( nft.connect(elizabeth)['safeTransferFrom(address,address,uint256)'](simp.address, owner.address, 52)).to.emit(nft, 'Transfer').withArgs(simp.address, owner.address, 52).to.emit(nft, 'Approval').withArgs(elizabeth.address, "0x0000000000000000000000000000000000000000", 52);
 
     // after transfer, the approval should be reset (elizabeth does not have approval)
+    expect(await nft.getApproved(52)).to.be.equal("0x0000000000000000000000000000000000000000");
 
   });
 
   it("Should burn and restore NFTs", async function () {
+    await expect(nft.burn(52)).to.emit(nft, "Burn").withArgs(owner.address, 52)
+        .to.emit(theDao, "Transfer").withArgs(nft.address, owner.address, peth("1").div("100"));
 
+    // check the state
+    stats = await nft.getStats(owner.address);
 
+    let expectedDAO = peth("200").sub(peth(TOTAL_SUPPLY+"").div("100")); // start with 20000 , minus 1800
+    expectedDAO = expectedDAO.add(peth("1").div("100")); //  add 1 dao we received after burning
+
+    expect(stats[0]).to.be.equal(expectedDAO); // 1 extra dao token
+    expect(stats[3]).to.be.equal(1); // 1 NFT in the dead address
+
+    // set the curator to be elizabeth so commissions go to her
+    expect(await nft.setCurator(elizabeth.address)).to.emit(nft, 'Curator').withArgs(elizabeth.address);
+
+    // restore the NFT, elizabeth will get the fee, nft will store 1 dao
+    await expect(nft.restore(52)).to.emit(nft, "Restore").withArgs(owner.address, 52).to.emit(theDao, "Transfer").withArgs(owner.address, elizabeth.address, peth(RESTORE_FEE+"").div("100")).to.emit(theDao, "Transfer").withArgs(owner.address, nft.address, peth("1").div("100")).to.emit(nft, "Transfer").withArgs(DEAD_ADDRESS, owner.address, 52);
+
+    // check the state
+    stats = await nft.getStats(owner.address);
+
+    expect(stats[0]).to.be.equal(expectedDAO.sub(peth("5").div("100"))); // owner should have 5 DAO less
   });
 
 
@@ -154,6 +176,14 @@ describe("TheDAONFT", function () {
   });
 
   it("Should do all the other things", async function () {
+    // tokenByIndex
+
+    // tokenOfOwnerByIndex
+
+    //ownerOf
+
+    // isApprovedForAll
+
 
   })
 
