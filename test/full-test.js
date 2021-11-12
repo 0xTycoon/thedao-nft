@@ -46,9 +46,9 @@ describe("TheDAONFT", function () {
 
     expect(await nft.setBaseURI(ASSET_URL)).to.emit(nft, 'BaseURI').withArgs(ASSET_URL);
 
-    expect(await nft.tokenURI(179)).to.be.equal(ASSET_URL + "179");
+    expect(await nft.tokenURI(179)).to.be.equal(ASSET_URL + "1/79.png");
 
-    expect(await nft.tokenURI(0)).to.be.equal(ASSET_URL + "0");
+    expect(await nft.tokenURI(0)).to.be.equal(ASSET_URL + "0/0.png");
 
     // set "setCurator"" should be rejected
     await expect( nft.connect(simp).setCurator(elizabeth.address)).to.be.revertedWith("only curator can call this");
@@ -60,7 +60,7 @@ describe("TheDAONFT", function () {
   it("Should mint some NFTs", async function () {
 
     // not approved
-    await expect( nft.mint()).to.be.revertedWith("not approved");
+    await expect( nft.mint(1)).to.be.revertedWith("not approved");
 
     // nft contract has TOTAL_SUPPLY nft ready to mint
     expect(await nft.balanceOf(nft.address)).to.be.equal(TOTAL_SUPPLY);
@@ -68,13 +68,19 @@ describe("TheDAONFT", function () {
     // approve
     expect(await theDao.approve(nft.address, peth("10"))).to.emit(theDao, 'Approval').withArgs(owner.address, nft.address, peth("10"));
 
+    await expect(  nft.ownerOf(52)).to.be.revertedWith("not minted"); // check owner before minting
+
     // now we can mint
-    for (let i = 0; i < TOTAL_SUPPLY; i++) {
+    for (let i = 0; i < TOTAL_SUPPLY-5; i++) {
       console.log(i);
-      expect(await nft.mint()).to.emit(nft, 'Mint').withArgs(owner.address, i);
+      expect(await nft.mint(1)).to.emit(nft, 'Mint').withArgs(owner.address, i);
     }
+
+    // arg is 6, but will only mint 5
+    expect(await nft.mint(6)).to.emit(nft, 'Mint').withArgs(owner.address, TOTAL_SUPPLY-5).withArgs(owner.address, TOTAL_SUPPLY-4).withArgs(owner.address, TOTAL_SUPPLY-3).withArgs(owner.address, TOTAL_SUPPLY-2).withArgs(owner.address, TOTAL_SUPPLY-1);
+
     // all minted, we cannot mint anymore
-    await expect( nft.mint()).to.be.revertedWith("minting finished");
+    await expect( nft.mint(1)).to.be.revertedWith("minting finished");
 
     // I should have TOTAL_SUPPLY nft
     expect(await nft.balanceOf(owner.address)).to.be.equal(TOTAL_SUPPLY);
@@ -170,20 +176,27 @@ describe("TheDAONFT", function () {
 
 
 
-  it("Should report the stats", async function () {
 
-
-  });
 
   it("Should do all the other things", async function () {
     // tokenByIndex
 
+    expect( await nft.tokenByIndex(52)).to.be.equal(52);
+
+    await expect(nft.tokenByIndex(9952)).to.be.revertedWith("index out of range");
+
     // tokenOfOwnerByIndex
+    expect( await nft.tokenOfOwnerByIndex(owner.address, 52)).to.be.equal(52);
 
     //ownerOf
 
-    // isApprovedForAll
+    expect( await nft.ownerOf(52)).to.be.equal(owner.address);
 
+
+    // isApprovedForAll ( we previously allowed theDAO)
+
+    expect( await nft.isApprovedForAll(owner.address, theDao.address)).to.be.equal(true);
+    expect( await nft.isApprovedForAll(owner.address, elizabeth.address)).to.be.equal(false);
 
   })
 

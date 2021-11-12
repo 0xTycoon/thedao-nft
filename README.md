@@ -25,9 +25,16 @@ $ pdftoppm TheDAO-SEC-34-81207.pdf TheDAO-art -png -x 1400 -y 1000 -W 10000 -H 1
 Convert to tiles
 
 ```
-$ convert TheDAO-art-01.png -crop 1000x1500 +adjoin tiles/tile%04d.png
+$ convert TheDAO-art-01.png -crop 1000x1500 +adjoin tiles/%d.png
 ```
 
+add the watermark
+
+```
+
+composite -dissolve 70 -gravity southeast -geometry +20+20   -define compose:clip-to-self=true assets/docs/img/thedao.png tiles/0/1.png output.png
+
+```
 
 uint256 to string 
 

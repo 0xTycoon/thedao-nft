@@ -5,8 +5,8 @@ pragma solidity ^0.8.4;
 /*
 
 TheNFT - TheDAO NFT
-
-The backstory:
+thedaonft.eth
+https://github.com/0xTycoon/thedao-nft
 
 On the 25th of July, 2017, The Securities and Exchange Commission (SEC) released an 18 page report about their
 investigation in to TheDAO. The report concluded that TheDAO tokens are securities.
@@ -23,9 +23,27 @@ RULES
 5. The NFT can be restored from the "Dead Address" with 4 DAO restoration fee
 6. the restoration fee goes to the Curator
 
-command to convert pdf to images
+### Digital Assets
 
-$ pdftoppm TheDAO-SEC-34-81207.pdf TheDAO-art -png -x 1400 -y 2000 -W 10000 -r 1500 -f 1 -l 1
+The images are prepared with the help of a script, see script.php for the source.
+The input for the script is TheDAO-SEC-34-81207.pdf with the sha256-hash of:
+6c9ae041b9b9603da01d0aa4d912586c8d85b9fe1932c57f988d8bd0f9da3bc7
+
+After the script completes creating all the tiles, the following sha256-hash will be printed:
+final hash: 3ed52e4afc9030f69004f163017c3ffba0b837d90061437328af87330dee9575
+
+### Minting
+
+Minting is done sequentially from 0 to 1799
+Up to 100 NFTs can be minted per transaction at a time (if gas allows)
+
+At the beginning, all tokens are owned by 0x0
+balanceOf(address(this)) is used to track how many tokens are yet to be minted
+
+* Tokens cannot be sent to address(this)
+* Tokens cannot be sent to 0x0
+
+
 
 */
 
@@ -33,22 +51,28 @@ $ pdftoppm TheDAO-SEC-34-81207.pdf TheDAO-art -png -x 1400 -y 2000 -W 10000 -r 1
 
 //import "./safemath.sol"; // we don't need it
 
-
 contract TheNFT {
-    bytes32 public constant PNG_SHA_256_HASH = "232323"; // sha256 hash of all 18 bitmaps saved in the PNG format
-    bytes32 public constant PDF_SHA_256_HASH = "232323"; // sha256 hash of the original pdf file
+    /**
+    * @dev PNG_SHA_256_HASH is a sha256 hash-sum of all 1800 bitmap tiles saved in the PNG format
+    * (the final hash)
+    */
+    string public constant PNG_SHA_256_HASH = "3ed52e4afc9030f69004f163017c3ffba0b837d90061437328af87330dee9575";
+    /**
+    * @dev PDF_SHA_256_HASH is a sha256 hash-sum of the pdf file TheDAO-SEC-34-81207.pdf
+    */
+    string public constant PDF_SHA_256_HASH = "6c9ae041b9b9603da01d0aa4d912586c8d85b9fe1932c57f988d8bd0f9da3bc7";
     address private constant DEAD_ADDRESS = address(0x74eda0); // unwrapped NFTs go here
-    address public curator; // the curator receives restoration fees
+    address public curator;                                    // the curator receives restoration fees
     string private assetURL;
     string private baseURI;
-    uint256 private immutable max; // total supply (1800)
-    uint256 private constant fee = 4; // fee is the amount of DAO needed to restore
+    uint256 private immutable max;                             // total supply (1800)
+    uint256 private constant fee = 4;                          // fee is the amount of DAO needed to restore
 
     // TheDAO stuff
-    IERC20 private immutable theDAO; // the contract of TheDAO, the greatest DAO of all time
-    uint256 private constant oneDao = 1e16; // 1 DAO = 16^10 wei or 0.01 ETH
+    IERC20 private immutable theDAO;                           // the contract of TheDAO, the greatest DAO of all time
+    uint256 private constant oneDao = 1e16;                    // 1 DAO = 16^10 wei or 0.01 ETH
 
-    mapping(address => uint256) private balances; // counts of ownership
+    mapping(address => uint256) private balances;              // counts of ownership
     mapping(uint256  => address) private ownership;
     mapping(uint256  => address) private approval;
     mapping(address => mapping(address => bool)) private approvalAll; // operator approvals
@@ -85,6 +109,7 @@ contract TheNFT {
         balances[address(this)] = _max; // track how many haven't been minted
         max = _max;
     }
+
     modifier onlyCurator {
         require(
             msg.sender == curator,
@@ -113,7 +138,7 @@ contract TheNFT {
     }
 
     /**
-    * @dev getStats helps to fetch some stats for the GUI in a single web3 call
+    * @dev getStats helps to fetch some stats for the UI in a single web3 call
     * @param _user the address to return the report for
     * @return uint256[6] the stats
     */
@@ -129,14 +154,22 @@ contract TheNFT {
     }
 
     /**
-    * @dev mint mints a token. Requires 1 DAO to mint
+    * @dev mint mints a token. Requires 1 DAO per NFT to mint
     */
-    function mint() external {
-        uint256 id = max - balances[address(this)];
+    function mint(uint256 i) external {
+        uint256 id = max - balances[address(this)];                    // id is the next assigned id
         require(id < max, "minting finished");
-        if (theDAO.transferFrom(msg.sender, address(this), oneDao)) { // take the 1 DAO fee
-            _transfer(address(this), msg.sender, id);
-            emit Mint(msg.sender, id);
+        require (i > 0 && i <= 100, "must be between 1 and 100");
+        if (i + id > max) {                                            // if it goes over the max supply
+            i = max -  id;                                             // cap it
+        }
+        if (theDAO.transferFrom(msg.sender, address(this), oneDao*i)) { // take the DAO fee
+            while (i > 0) {
+                _transfer(address(this), msg.sender, id);
+                emit Mint(msg.sender, id);
+                i--;
+                id++;
+            }
         }
     }
 
@@ -193,47 +226,76 @@ contract TheNFT {
      */
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
+    /// @notice Count NFTs tracked by this contract
+    /// @return A count of valid NFTs tracked by this contract, where each one of
+    ///  them has an assigned and queryable owner not equal to the zero address
     function totalSupply() external view returns (uint256) {
         return max;
     }
 
+    /// @notice Enumerate valid NFTs
+    /// @dev Throws if `_index` >= `totalSupply()`.
+    /// @param _index A counter less than `totalSupply()`
+    /// @return The token identifier for the `_index`th NFT,
+    ///  (sort order not specified)
     function tokenByIndex(uint256 _index) external view returns (uint256) {
         require (_index < max, "index out of range");
         return _index;
     }
 
-    function tokenOfOwnerByIndex(address _owner, uint256 _index) external view returns (uint256) {
+    /// @notice Enumerate NFTs assigned to an owner
+    /// @dev Throws if `_index` >= `balanceOf(_owner)` or if
+    ///  `_owner` is the zero address, representing invalid NFTs.
+    /// @param _owner An address where we are interested in NFTs owned by them
+    /// @param _index A counter less than `balanceOf(_owner)`
+    /// @return The token identifier for the `_index`th NFT assigned to `_owner`,
+    ///   (sort order not specified)
+    function tokenOfOwnerByIndex(address  _owner , uint256 _index) external view returns (uint256) {
         require (_index < max, "index out of range");
+        require (_owner != address(0), "address invalid");
         require (ownership[_index] != address(0), "token not assigned");
         return _index;
     }
 
+    /**
+     * @dev Returns the number of tokens in ``owner``'s account.
+     */
     function balanceOf(address _holder) public view returns (uint256) {
         require (_holder != address(0));
         return balances[_holder];
     }
 
-    function name() public view returns (string memory) {
+    function name() public pure returns (string memory) {
         return "TheDAO NFT";
     }
 
-    function symbol() public view returns (string memory) {
+    function symbol() public pure returns (string memory) {
         return "DAO";
     }
 
+    /**
+     * @dev Returns the Uniform Resource Identifier (URI) for `tokenId` token.
+     */
     function tokenURI(uint256 _tokenId) public view returns (string memory) {
         require (_tokenId < max, "index out of range");
         string memory _baseURI = baseURI;
+        uint256 num = _tokenId % 100;
         return bytes(_baseURI).length > 0
-        ? string(abi.encodePacked(_baseURI, toString(_tokenId)))
+        ? string(abi.encodePacked(_baseURI, toString(_tokenId/100), "/", toString(num), ".png"))
         : '';
-        return assetURL;
     }
 
+    /**
+     * @dev Returns the owner of the `tokenId` token.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must exist.
+     */
     function ownerOf(uint256 _tokenId) public view returns (address) {
         require (_tokenId < max, "index out of range");
         address holder = ownership[_tokenId];
-        require (holder != address(0));
+        require (holder != address(0), "not minted.");
         return holder;
     }
 
@@ -363,7 +425,7 @@ contract TheNFT {
     * @return `true` if the contract implements `interfaceID` and
     *  `interfaceID` is not 0xffffffff, `false` otherwise
     */
-    function supportsInterface(bytes4 interfaceId) public view returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public pure returns (bool) {
         return
         interfaceId == type(IERC721).interfaceId ||
         interfaceId == type(IERC721Metadata).interfaceId ||
@@ -386,9 +448,8 @@ contract TheNFT {
     }
 
     // we do not allow NFTs to be send to this contract
-    function onERC721Received(address _operator, address _from, uint256 _tokenId, bytes memory _data) external returns (bytes4) {
+    function onERC721Received(address /*_operator*/, address /*_from*/, uint256 /*_tokenId*/, bytes memory /*_data*/) external pure returns (bytes4) {
         revert("nope");
-        return bytes4(keccak256("nope"));
     }
 
     /**
@@ -421,7 +482,7 @@ contract TheNFT {
                     }
                 }
             }
-            return false;
+            return false; // not needed, but the ide complains that there's "no return statement"
         } else {
             return true;
         }
@@ -440,9 +501,7 @@ contract TheNFT {
         return size > 0;
     }
 
-
-
-    function toString(uint256 value) public view returns (string memory) {
+    function toString(uint256 value) public pure returns (string memory) {
         // Inspired by openzeppelin's implementation - MIT licence
         // https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Strings.sol#L15
         // this version removes the decimals counting
