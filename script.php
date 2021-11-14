@@ -11,7 +11,7 @@
  *
  *  SHA256 Hashes:
  *  TheDAO-SEC-34-81207.pdf    6c9ae041b9b9603da01d0aa4d912586c8d85b9fe1932c57f988d8bd0f9da3bc7
- *  assets/docs/img/thedao.png fae7a4fda83cc18b60ab88453bf2354a8830696a5ab8518257bc421a09c00b11
+ *  docs/img/thedao.png fae7a4fda83cc18b60ab88453bf2354a8830696a5ab8518257bc421a09c00b11
  *  Sum of all tiles
  *
  *  tile size: 1000 x 1400
@@ -23,7 +23,7 @@ $dir = __DIR__;
 `rm *.png`;
 // delete tiles, re-create dirs
 for ($i = 0; $i < 18; $i++) {
-    $path = $dir . "/assets/docs/img/" . $i;
+    $path = $dir . "/docs/img/" . $i;
     `rm -rf $path`;
     `mkdir $path`;
 }
@@ -33,7 +33,7 @@ echo "$cmd\n";
 `$cmd`;
 $hasher = hash_init("sha256");
 for ($i = 0; $i < 18; $i++) {
-    $path = $dir . "/assets/docs/img/" . $i;
+    $path = $dir . "/docs/img/" . $i;
     $seq = sprintf('%02d', $i+1);
     // split each page into tiles
     $cmd = "convert $dir/TheDAO-art-$seq.png -strip -crop 1000x1400 +adjoin $path/%d.png";
@@ -42,7 +42,7 @@ for ($i = 0; $i < 18; $i++) {
     // add the logo to each tile
     for ($t = 0; $t < 100; $t++) {
         // add the logo, bottom right
-        $cmd = "composite -strip -dissolve 70 -gravity southeast -geometry +20+20 -define compose:clip-to-self=true assets/docs/img/thedao.png $path/$t.png $path/output.png";
+        $cmd = "composite -strip -dissolve 70 -gravity southeast -geometry +20+20 -define compose:clip-to-self=true docs/img/thedao.png $path/$t.png $path/output.png";
         echo "$cmd\n";
         `$cmd`;
         // add the "1 DAO" top left

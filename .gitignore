@@ -1,22 +1,4 @@
-# Image tiles that are generated using the script
-assets/docs/img/0
-assets/docs/img/1
-assets/docs/img/2
-assets/docs/img/3
-assets/docs/img/4
-assets/docs/img/5
-assets/docs/img/6
-assets/docs/img/7
-assets/docs/img/8
-assets/docs/img/9
-assets/docs/img/10
-assets/docs/img/11
-assets/docs/img/12
-assets/docs/img/13
-assets/docs/img/14
-assets/docs/img/15
-assets/docs/img/16
-assets/docs/img/17
+
 
 .idea
 hardhat.config.js
