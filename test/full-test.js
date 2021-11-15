@@ -46,9 +46,9 @@ describe("TheDAONFT", function () {
 
     expect(await nft.setBaseURI(ASSET_URL)).to.emit(nft, 'BaseURI').withArgs(ASSET_URL);
 
-    expect(await nft.tokenURI(179)).to.be.equal(ASSET_URL + "1/79.png");
+    expect(await nft.tokenURI(179)).to.be.equal(ASSET_URL + "1/79.json");
 
-    expect(await nft.tokenURI(0)).to.be.equal(ASSET_URL + "0/0.png");
+    expect(await nft.tokenURI(0)).to.be.equal(ASSET_URL + "0/0.json");
 
     // set "setCurator"" should be rejected
     await expect( nft.connect(simp).setCurator(elizabeth.address)).to.be.revertedWith("only curator can call this");

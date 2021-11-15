@@ -266,11 +266,11 @@ contract TheNFT {
     }
 
     function name() public pure returns (string memory) {
-        return "TheDAO NFT";
+        return "TheNFT Project";
     }
 
     function symbol() public pure returns (string memory) {
-        return "DAO";
+        return "TheNFT";
     }
 
     /**
@@ -281,7 +281,7 @@ contract TheNFT {
         string memory _baseURI = baseURI;
         uint256 num = _tokenId % 100;
         return bytes(_baseURI).length > 0
-        ? string(abi.encodePacked(_baseURI, toString(_tokenId/100), "/", toString(num), ".png"))
+        ? string(abi.encodePacked(_baseURI, toString(_tokenId/100), "/", toString(num), ".json"))
         : '';
     }
 

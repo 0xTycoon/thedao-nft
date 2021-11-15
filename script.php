@@ -62,12 +62,6 @@ for ($i = 0; $i < 18; $i++) {
         // shasum each tile with https://www.php.net/manual/en/function.hash-init.php
         $data = file_get_contents("$path/$t.png");
         hash_update($hasher, $data);
-
-        $json =
-
-            `
-`;
-
     }
 }
 echo "final hash: ".hash_final($hasher)."\n";
