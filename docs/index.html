@@ -1,1 +1,1667 @@
-Temporarily closed
+<!doctype html>
+<html lang="en">
+
+<head>
+    <link rel="icon" type="image/png" href="img/thedao-icon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>TheDAO NFT</title>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/toastr.min.css">
+    <style>
+        .navbar {
+            background-color: #5d5a57 !important;
+        }
+
+        body {
+            padding-top: 110px;
+            padding-bottom: 3em;
+            background: rgb(234, 234, 235);
+            background: linear-gradient(90deg, rgb(74 80 86) 0%, rgb(186 186 186) 97%);
+        }
+
+        #presenting {
+
+            background: linear-gradient(90deg, rgb(66 66 66) 0%, rgb(0 54 152 / 19%) 97%);
+            color: #e6e6e6;
+            padding: 1em;
+            border-radius: 6px;
+
+        }
+
+        #sub-title {
+            color: darkgrey;
+        }
+
+        #dapp, #minting-finished {
+            padding: 1em;
+            margin-top: 1.5em;
+            box-shadow: 1px 1px 15px 5px #8c8d8d;
+            border: 1px solid #bebebe;
+            border-radius: 25px;
+            background: rgb(255, 214, 214);
+            background: radial-gradient(circle, rgb(231, 255, 217) 0%, rgb(245, 245, 245) 100%);
+        }
+
+        #dapp-not-connected {
+            background-color: #0d6efd;
+            color: #f0f0f0;
+        }
+
+        #mint-btn {
+            min-width: 8em;
+        }
+
+        #no-dao-tokens, #has-dao-tokens {
+            background: #fdff8d29;
+        }
+
+        #gallery {
+            padding: 1em;
+            margin-top: 1.5em;
+            box-shadow: 1px 1px 15px 5px #8c8d8d;
+            border: 1px solid #bebebe;
+            border-radius: 25px;
+            background: rgb(255, 214, 214);
+            background: radial-gradient(circle, rgb(172 172 172) 0%, rgb(199 220 255) 100%);
+        }
+
+        .tile {
+            width:100%; min-width:50px;
+        }
+
+        .contract {
+            font-weight: bold;
+            font-size: smaller;
+        }
+
+        footer {
+            background-color: black;
+            color: whitesmoke;
+            margin-bottom: -10em;
+        }
+
+        footer a {
+            color: whitesmoke;
+        }
+
+
+    </style>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-light fixed-top bg-dark">
+        <div class="container-fluid">
+
+            <a class="navbar-brand" href="#">
+                <img src="img/thedao.png" alt="" width="111" height="50"> TheDao NFT
+            </a>
+
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
+                    aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav me-auto mb-2 mb-md-0  justify-content-end">
+                    <li>
+                        <a class="nav-link" href="#" id="about">
+                            <h5 class="ms-auto">Total minted <span
+                                                                   id="nft-total-minted" class="badge bg-warning">?</span> /
+                                1800</h5>
+                        </a>
+                    </li>
+
+                </ul>
+                <form class="d-flex">
+
+                    <button class="btn btn-primary" id="connect">Connect Wallet</button>
+                </form>
+            </div>
+
+        </div>
+
+    </nav>
+
+</header>
+<main>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <h1 id="sub-title">TheDaoNFT<sup>.eth</sup>️</h1>
+
+                <div id="presenting">
+                    <h3>Welcome to the TheDAO Museum NFT project.
+                        The SEC released an 18-page report on the TheDAO. Here we take this pdf, convert each page
+                        to PNGs, then break each PNG in to 100 tiles. 1800 tiles are then turned into NFTs.</h3>
+                    <p>Each individual NFT will require 1 DAO token to mint, which
+                        gets wrapped inside the NFT. The DAO token can be unwrapped at any time by burning the NFT.</p>
+
+                </div>
+
+                <div id="dapp-not-connected" class="alert-primary" >
+                    <h4>Please connect your wallet to continue</h4>
+
+                </div>
+
+                <div class="jumbotron d-none" id="minting-finished">
+                    <h1 class="display-4">Minting finished</h1>
+                    <p class="lead">
+                        All 1800 NFTs have been minted and only available on the secondary market. Verified Contract address: <a class="contract" href="https://etherscan.io/address/0xb3895280f69fc50a1fdf51099a4e577b867b63df">0xb3895280f69fc50a1fdf51099a4e577b867b63df</a>
+                    </p>
+                </div>
+
+                <div class="jumbotron d-none" id="dapp">
+
+                    <h1 class="display-4">Mint a piece of history</h1>
+                    <p class="lead">
+                        Minting is now open. Verified Contract address: <a class="contract" href="https://etherscan.io/address/0x266830230bf10A58cA64B7347499FD361a011a02">0x266830230bf10A58cA64B7347499FD361a011a02</a>
+                    </p>
+                    <p id="no-dao-tokens"><b>There are 0 TheDAO tokens in your wallet...</b> To mint a NFT, you will need at least 1 whole TheDAO token in your wallet. See <a href="https://thedaotoken.eth.limo/">thedaotoken.eth.limo</a> for info on how to acquire these historical tokens.</p>
+                    <p id="has-dao-tokens"><b>There are <span id="thedao-balance">x</span> TheDAO tokens in your wallet</b>
+                    1 DAO is needed to mint 1 NFT.
+                    </p>
+                    <p class="d-none" id="has-balance">You have minted <b id="nft-balance">x</b> NFTs so far</p>
+                    <form id="mint-form">
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="inputAmount" class="form-label">How many to mint</label>
+                                    <input name="i" value="1" type="number" class="form-control" id="inputAmount" aria-describedby="amountHelp">
+                                    <div id="amountHelp" class="form-text">How many to mint in one transaction. Max 10.</div>
+                                </div>
+                            </div>
+                            <div class="col d-flex justify-content-center">
+
+                                    <div id="approve-info">Please approve the TheDAO token first<br>
+                                        <button type="submit" class="btn btn-primary" id="approve-btn">Approve</button>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-success" id="mint-btn" >Mint</button>
+
+
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
+                <div class="jumbotron " id="gallery">
+                    <h1 class="display-4">Sample of some the pieces</h1>
+                    <div class="container overflow-hidden">
+
+                        <div class="row align-items-center gy-3">
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/0.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/1.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/2.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/3.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/4.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/5.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/6.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/7.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/8.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/9.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/10.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/11.png"></div>
+
+                        </div>
+                        <div class="row align-items-center gy-3">
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/12.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/13.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/14.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/15.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/16.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/17.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/18.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/19.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/20.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/21.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/22.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/23.png"></div>
+                        </div>
+
+                        <div class="row align-items-center gy-3">
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/24.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/25.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/26.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/27.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/28.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/29.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/30.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/31.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/32.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/33.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/34.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/35.png"></div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <hr>
+
+
+</main>
+<footer class="bg-dark text-center text-lg-start">
+    <!-- Copyright -->
+    <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+        A DAO Museum Project, Source (MIT)
+        <a href="https://github.com/0xTycoon/thedao-nft">https://github.com/0xTycoon/thedao-nft</a>
+    </div>
+    <!-- Copyright -->
+</footer>
+<script src="js/jquery-3.6.0.min.js"></script>
+<script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="js/web3.min.js"></script>
+<script src="js/js-big-decimal.min.js"></script>
+<script src="js/web3modal.js"></script>
+<script src="js/toastr.min.js"></script>
+<script src="js/walletconnect/web3-provider.min.js"></script>
+<script>
+
+    const TheDaoNFTAddress = "0x266830230bf10A58cA64B7347499FD361a011a02"; //test "0xb3895280f69fc50a1fdf51099a4e577b867b63df";
+
+    const TheDaoNFTABI = [
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_theDAO",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_max",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "constructor"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "owner",
+                    "type": "address"
+                },
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "approved",
+                    "type": "address"
+                },
+                {
+                    "indexed": true,
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "Approval",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "owner",
+                    "type": "address"
+                },
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "operator",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "bool",
+                    "name": "approved",
+                    "type": "bool"
+                }
+            ],
+            "name": "ApprovalForAll",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": false,
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string"
+                }
+            ],
+            "name": "BaseURI",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": false,
+                    "internalType": "address",
+                    "name": "owner",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "Burn",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": false,
+                    "internalType": "address",
+                    "name": "curator",
+                    "type": "address"
+                }
+            ],
+            "name": "Curator",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": false,
+                    "internalType": "address",
+                    "name": "owner",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "Mint",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": false,
+                    "internalType": "address",
+                    "name": "owner",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "Restore",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "from",
+                    "type": "address"
+                },
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "to",
+                    "type": "address"
+                },
+                {
+                    "indexed": true,
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "Transfer",
+            "type": "event"
+        },
+        {
+            "inputs": [],
+            "name": "PDF_SHA_256_HASH",
+            "outputs": [
+                {
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "PNG_SHA_256_HASH",
+            "outputs": [
+                {
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_to",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_tokenId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "approve",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_holder",
+                    "type": "address"
+                }
+            ],
+            "name": "balanceOf",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "id",
+                    "type": "uint256"
+                }
+            ],
+            "name": "burn",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "curator",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_tokenId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "getApproved",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_user",
+                    "type": "address"
+                }
+            ],
+            "name": "getStats",
+            "outputs": [
+                {
+                    "internalType": "uint256[]",
+                    "name": "",
+                    "type": "uint256[]"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_owner",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_operator",
+                    "type": "address"
+                }
+            ],
+            "name": "isApprovedForAll",
+            "outputs": [
+                {
+                    "internalType": "bool",
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "i",
+                    "type": "uint256"
+                }
+            ],
+            "name": "mint",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "name",
+            "outputs": [
+                {
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "bytes",
+                    "name": "",
+                    "type": "bytes"
+                }
+            ],
+            "name": "onERC721Received",
+            "outputs": [
+                {
+                    "internalType": "bytes4",
+                    "name": "",
+                    "type": "bytes4"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_tokenId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "ownerOf",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "id",
+                    "type": "uint256"
+                }
+            ],
+            "name": "restore",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_from",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_to",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_tokenId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "safeTransferFrom",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_from",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_to",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_tokenId",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "bytes",
+                    "name": "_data",
+                    "type": "bytes"
+                }
+            ],
+            "name": "safeTransferFrom",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_operator",
+                    "type": "address"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "_approved",
+                    "type": "bool"
+                }
+            ],
+            "name": "setApprovalForAll",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "_uri",
+                    "type": "string"
+                }
+            ],
+            "name": "setBaseURI",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_curator",
+                    "type": "address"
+                }
+            ],
+            "name": "setCurator",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "bytes4",
+                    "name": "interfaceId",
+                    "type": "bytes4"
+                }
+            ],
+            "name": "supportsInterface",
+            "outputs": [
+                {
+                    "internalType": "bool",
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "symbol",
+            "outputs": [
+                {
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "value",
+                    "type": "uint256"
+                }
+            ],
+            "name": "toString",
+            "outputs": [
+                {
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string"
+                }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_index",
+                    "type": "uint256"
+                }
+            ],
+            "name": "tokenByIndex",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_owner",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_index",
+                    "type": "uint256"
+                }
+            ],
+            "name": "tokenOfOwnerByIndex",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_tokenId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "tokenURI",
+            "outputs": [
+                {
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "totalSupply",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_from",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_to",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_tokenId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "transferFrom",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        }
+    ];
+
+
+
+    const TheDAOAddress = "0xbb9bc244d798123fde783fcc1c72d3bb8c189413";
+    const TheDAOABI = [{
+        "constant": true,
+        "inputs": [{"name": "", "type": "uint256"}],
+        "name": "proposals",
+        "outputs": [{"name": "recipient", "type": "address"}, {
+            "name": "amount",
+            "type": "uint256"
+        }, {"name": "description", "type": "string"}, {"name": "votingDeadline", "type": "uint256"}, {
+            "name": "open",
+            "type": "bool"
+        }, {"name": "proposalPassed", "type": "bool"}, {
+            "name": "proposalHash",
+            "type": "bytes32"
+        }, {"name": "proposalDeposit", "type": "uint256"}, {"name": "newCurator", "type": "bool"}, {
+            "name": "yea",
+            "type": "uint256"
+        }, {"name": "nay", "type": "uint256"}, {"name": "creator", "type": "address"}],
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_spender", "type": "address"}, {"name": "_amount", "type": "uint256"}],
+        "name": "approve",
+        "outputs": [{"name": "success", "type": "bool"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "minTokensToCreate",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "rewardAccount",
+        "outputs": [{"name": "", "type": "address"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "daoCreator",
+        "outputs": [{"name": "", "type": "address"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "totalSupply",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "divisor",
+        "outputs": [{"name": "divisor", "type": "uint256"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "extraBalance",
+        "outputs": [{"name": "", "type": "address"}],
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_proposalID", "type": "uint256"}, {"name": "_transactionData", "type": "bytes"}],
+        "name": "executeProposal",
+        "outputs": [{"name": "_success", "type": "bool"}],
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_from", "type": "address"}, {"name": "_to", "type": "address"}, {
+            "name": "_value",
+            "type": "uint256"
+        }],
+        "name": "transferFrom",
+        "outputs": [{"name": "success", "type": "bool"}],
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [],
+        "name": "unblockMe",
+        "outputs": [{"name": "", "type": "bool"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "totalRewardToken",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "actualBalance",
+        "outputs": [{"name": "_actualBalance", "type": "uint256"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "closingTime",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [{"name": "", "type": "address"}],
+        "name": "allowedRecipients",
+        "outputs": [{"name": "", "type": "bool"}],
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_to", "type": "address"}, {"name": "_value", "type": "uint256"}],
+        "name": "transferWithoutReward",
+        "outputs": [{"name": "success", "type": "bool"}],
+        "type": "function"
+    }, {"constant": false, "inputs": [], "name": "refund", "outputs": [], "type": "function"}, {
+        "constant": false,
+        "inputs": [{"name": "_recipient", "type": "address"}, {
+            "name": "_amount",
+            "type": "uint256"
+        }, {"name": "_description", "type": "string"}, {
+            "name": "_transactionData",
+            "type": "bytes"
+        }, {"name": "_debatingPeriod", "type": "uint256"}, {"name": "_newCurator", "type": "bool"}],
+        "name": "newProposal",
+        "outputs": [{"name": "_proposalID", "type": "uint256"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [{"name": "", "type": "address"}],
+        "name": "DAOpaidOut",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "minQuorumDivisor",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_newContract", "type": "address"}],
+        "name": "newContract",
+        "outputs": [],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [{"name": "_owner", "type": "address"}],
+        "name": "balanceOf",
+        "outputs": [{"name": "balance", "type": "uint256"}],
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_recipient", "type": "address"}, {"name": "_allowed", "type": "bool"}],
+        "name": "changeAllowedRecipients",
+        "outputs": [{"name": "_success", "type": "bool"}],
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [],
+        "name": "halveMinQuorum",
+        "outputs": [{"name": "_success", "type": "bool"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [{"name": "", "type": "address"}],
+        "name": "paidOut",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_proposalID", "type": "uint256"}, {"name": "_newCurator", "type": "address"}],
+        "name": "splitDAO",
+        "outputs": [{"name": "_success", "type": "bool"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "DAOrewardAccount",
+        "outputs": [{"name": "", "type": "address"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "proposalDeposit",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "numberOfProposals",
+        "outputs": [{"name": "_numberOfProposals", "type": "uint256"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "lastTimeMinQuorumMet",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_toMembers", "type": "bool"}],
+        "name": "retrieveDAOReward",
+        "outputs": [{"name": "_success", "type": "bool"}],
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [],
+        "name": "receiveEther",
+        "outputs": [{"name": "", "type": "bool"}],
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_to", "type": "address"}, {"name": "_value", "type": "uint256"}],
+        "name": "transfer",
+        "outputs": [{"name": "success", "type": "bool"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "isFueled",
+        "outputs": [{"name": "", "type": "bool"}],
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_tokenHolder", "type": "address"}],
+        "name": "createTokenProxy",
+        "outputs": [{"name": "success", "type": "bool"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [{"name": "_proposalID", "type": "uint256"}],
+        "name": "getNewDAOAddress",
+        "outputs": [{"name": "_newDAO", "type": "address"}],
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_proposalID", "type": "uint256"}, {"name": "_supportsProposal", "type": "bool"}],
+        "name": "vote",
+        "outputs": [{"name": "_voteID", "type": "uint256"}],
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [],
+        "name": "getMyReward",
+        "outputs": [{"name": "_success", "type": "bool"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [{"name": "", "type": "address"}],
+        "name": "rewardToken",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_from", "type": "address"}, {"name": "_to", "type": "address"}, {
+            "name": "_value",
+            "type": "uint256"
+        }],
+        "name": "transferFromWithoutReward",
+        "outputs": [{"name": "success", "type": "bool"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [{"name": "_owner", "type": "address"}, {"name": "_spender", "type": "address"}],
+        "name": "allowance",
+        "outputs": [{"name": "remaining", "type": "uint256"}],
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_proposalDeposit", "type": "uint256"}],
+        "name": "changeProposalDeposit",
+        "outputs": [],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [{"name": "", "type": "address"}],
+        "name": "blocked",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "curator",
+        "outputs": [{"name": "", "type": "address"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [{"name": "_proposalID", "type": "uint256"}, {
+            "name": "_recipient",
+            "type": "address"
+        }, {"name": "_amount", "type": "uint256"}, {"name": "_transactionData", "type": "bytes"}],
+        "name": "checkProposalCode",
+        "outputs": [{"name": "_codeChecksOut", "type": "bool"}],
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "privateCreation",
+        "outputs": [{"name": "", "type": "address"}],
+        "type": "function"
+    }, {
+        "inputs": [{"name": "_curator", "type": "address"}, {
+            "name": "_daoCreator",
+            "type": "address"
+        }, {"name": "_proposalDeposit", "type": "uint256"}, {
+            "name": "_minTokensToCreate",
+            "type": "uint256"
+        }, {"name": "_closingTime", "type": "uint256"}, {"name": "_privateCreation", "type": "address"}],
+        "type": "constructor"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": true, "name": "_from", "type": "address"}, {
+            "indexed": true,
+            "name": "_to",
+            "type": "address"
+        }, {"indexed": false, "name": "_amount", "type": "uint256"}],
+        "name": "Transfer",
+        "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": true, "name": "_owner", "type": "address"}, {
+            "indexed": true,
+            "name": "_spender",
+            "type": "address"
+        }, {"indexed": false, "name": "_amount", "type": "uint256"}],
+        "name": "Approval",
+        "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": false, "name": "value", "type": "uint256"}],
+        "name": "FuelingToDate",
+        "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": true, "name": "to", "type": "address"}, {
+            "indexed": false,
+            "name": "amount",
+            "type": "uint256"
+        }],
+        "name": "CreatedToken",
+        "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": true, "name": "to", "type": "address"}, {
+            "indexed": false,
+            "name": "value",
+            "type": "uint256"
+        }],
+        "name": "Refund",
+        "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": true, "name": "proposalID", "type": "uint256"}, {
+            "indexed": false,
+            "name": "recipient",
+            "type": "address"
+        }, {"indexed": false, "name": "amount", "type": "uint256"}, {
+            "indexed": false,
+            "name": "newCurator",
+            "type": "bool"
+        }, {"indexed": false, "name": "description", "type": "string"}],
+        "name": "ProposalAdded",
+        "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": true, "name": "proposalID", "type": "uint256"}, {
+            "indexed": false,
+            "name": "position",
+            "type": "bool"
+        }, {"indexed": true, "name": "voter", "type": "address"}],
+        "name": "Voted",
+        "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": true, "name": "proposalID", "type": "uint256"}, {
+            "indexed": false,
+            "name": "result",
+            "type": "bool"
+        }, {"indexed": false, "name": "quorum", "type": "uint256"}],
+        "name": "ProposalTallied",
+        "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": true, "name": "_newCurator", "type": "address"}],
+        "name": "NewCurator",
+        "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": true, "name": "_recipient", "type": "address"}, {
+            "indexed": false,
+            "name": "_allowed",
+            "type": "bool"
+        }],
+        "name": "AllowedRecipientChanged",
+        "type": "event"
+    }];
+
+
+
+    let web3 = new Web3;
+    let NFT;
+    let TheDAO;
+    let provider;
+    let Web3Modal;
+
+    let feth = function (v) { // stub function
+        return "NaN"
+    }; // format ETH (WEI to ETH)
+    let peth = function (v) { // stub function
+        return web3.utils.toBN("0");
+    }; // parse ETH (ETH to WEI) return as BigNumber
+    let toBN = function (str) { // stub function
+        return new web3.utils.toBN(str);
+    }; // convert to BigNumber
+    let toDAO = function(wei) {
+        return web3.utils.toBN((wei)).mul(web3.utils.toBN(100))
+    }
+
+    let state = {
+        isConnected: false,
+        selectedAccount: "",
+        web3BlockSub: null, // subscription to block updates
+        balanceETH: toBN("0"),
+        mintAmount : 1,
+
+        stats: {
+            theDAOBalance: toBN("0"),
+            theDAOAllowance: toBN("0"),
+            NFTsToBeMinted: toBN("0"),
+            NFTDeadBalance: toBN("0"),
+            theDAOTotalWrapped: toBN("0"),
+            NFTBalance: toBN("0")
+
+        },
+        bloom: ""
+    };
+
+    async function init() {
+        web3 = new Web3(provider);
+        NFT = new web3.eth.Contract(TheDaoNFTABI, TheDaoNFTAddress); // TheToken
+        TheDAO = new web3.eth.Contract(TheDAOABI, TheDAOAddress); // TheDAO contract
+        feth = function (wei) { // format ETH utility
+            let ret = Web3.utils.fromWei(wei, 'ether');
+            return ret;
+        }
+        peth = function (eth) {
+            return web3.utils.toBN(Web3.utils.toWei(eth, 'ether'));
+        }
+        toBN = function (str) {
+            return web3.utils.toBN(str);
+        }
+        let block = await web3.eth.getBlock("latest");
+        await updateState(block);
+        if (state.web3BlockSub == null) {
+            await subscribeEvents();
+        }
+
+        async function subscribeEvents() {
+            state.web3BlockSub = await web3.eth.subscribe('newBlockHeaders', async function (error, result) {
+                console.log("got new block: " + result.number);
+                await updateState(result);
+                try {
+                    render();
+                } catch (e) {
+                }
+            });
+
+            provider.on("disconnect", async (error) => {
+                console.log(error);
+                console.log("disconnected, provider is" + provider.isConnected);
+                provider.disconnect();
+                provider = null;
+                state.isConnected = false;
+                try {
+                    render();
+                } catch (e) {
+                }
+            });
+
+            // reload on account change
+            provider.on("accountsChanged", async (accounts) => {
+                console.log(accounts);
+                console.log("account changed");
+                location.reload();
+                try {
+                    await updateState();
+                } catch (e) {
+                }
+                render();
+            });
+
+            // reload on chain change
+            provider.on("chainChanged", async (accounts) => {
+                console.log(accounts);
+                console.log("chain changed");
+                location.reload();
+            });
+
+            provider.on("connect", async (info) => {
+                console.log("connected!")
+                console.log(info);
+                await updateState();
+                try {
+                    render();
+                } catch (e) {
+                }
+            });
+        }
+
+        async function unsubscribeEvents() {
+            if (state.web3BlockSub != null) {
+                await state.web3BlockSub.unsubscribe(function (error, success) {
+                    if (success) {
+                        console.log('web3BlockSub Successfully unsubscribed!');
+                        state.web3BlockSub = null;
+                    }
+                });
+            }
+        }
+
+        render();
+
+    }
+
+    async function updateState(blockHeader) {
+
+        let accounts = await web3.eth.getAccounts();
+        state.selectedAccount = accounts[0];
+        web3.eth.defaultAccount = state.selectedAccount;
+        console.log("selected account" + state.selectedAccount);
+        if (blockHeader) {
+            state.bloom = blockHeader.logsBloom;
+            state.balanceETH = await web3.eth.getBalance(state.selectedAccount);
+            try {
+                let result = await NFT.methods.getStats(state.selectedAccount).call();
+                state.stats.theDAOBalance = toBN(result[0]);
+                state.stats.theDAOAllowance = toBN(result[1]);
+                state.stats.NFTsToBeMinted = toBN(result[2]);
+                state.stats.NFTDeadBalance = toBN(result[3]);
+                state.stats.theDAOTotalWrapped = toBN(result[4]);
+                state.stats.NFTBalance = toBN(result[5]);
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+    }
+
+    function render() {
+        let button = $("#connect");
+        if ((!state.isConnected) && (state.selectedAccount.length !== 0)) {
+            button.text("Connect Wallet");
+            button.addClass("btn-primary");
+            button.removeClass("btn-secondary");
+            $("#dapp-not-connected").show();
+            $("#dapp").hide();
+        } else {
+            let ac = state.selectedAccount
+            let shortAc = ac.substring(0, 4) + '...' + ac.substring(ac.length - 4) + " connected";
+            button.text(shortAc)
+            button.removeClass("btn-primary");
+            button.addClass("btn-secondary");
+            $("#dapp-not-connected").hide();
+
+            if (state.stats.NFTsToBeMinted.eq(toBN(0))) {
+                // no more to mint!
+                $("#minting-finished").show();
+                $("#minting-finished").removeClass("d-none");
+            } else {
+                $("#dapp").show();
+                $("#dapp").removeClass("d-none");
+            }
+
+
+        }
+
+        if (state.stats.theDAOBalance.eq(toBN("0"))) {
+            $("#no-dao-tokens").show();
+            $("#has-dao-tokens").hide();
+            $("#mint-form").hide();
+
+        } else {
+            $("#mint-form").show();
+            $("#no-dao-tokens").hide();
+            $("#has-dao-tokens").show();
+            let tokens = toDAO(state.stats.theDAOBalance);  // convert to 16 decimal
+            $("#thedao-balance").html(web3.utils.fromWei(tokens)); //
+
+            // show the approve or mint button?
+            if (state.stats.theDAOAllowance.lt(state.stats.theDAOBalance)) {
+                // not approved
+                $("#mint-btn").hide();
+                $("#approve-btn").show();
+                $("#approve-info").show();
+            } else {
+                $("#mint-btn").show();
+                $("#approve-btn").hide();
+                $("#approve-info").hide();
+            }
+
+        }
+        if (state.stats.NFTBalance.gt(toBN(0))) {
+            $("#nft-balance").text(state.stats.NFTBalance.toString());
+            $("#has-balance").removeClass('d-none');
+            $("#has-balance").show();
+        } else {
+            $("#has-balance").hide();
+        }
+
+        $("#nft-total-minted").text(toBN(1800).sub(state.stats.NFTsToBeMinted).toString());
+    }
+
+    $(async function () {
+        console.log("ready!");
+
+        Web3Modal = window.Web3Modal.default;
+        const WalletConnectProvider = window.WalletConnectProvider.default;
+        const providerOptions = {
+            /* See Provider Options Section */
+            // infuraId: "",
+            /*
+            walletconnect: {
+                package: WalletConnectProvider, // required
+                options: {
+                    infuraId: "35247c5aca8a416bb22a01e56ab022dc" // required
+                }
+            }
+            */
+        };
+        const w3m = new Web3Modal({
+            network: "mainnet", // optional
+            cacheProvider: true, // optional
+            providerOptions // required
+        });
+        if (w3m.cachedProvider) {
+            try {
+                provider = await w3m.connect();
+                state.isConnected = true;
+                await init();
+            } catch (e) {
+                console.log("error using cached provider", e);
+                w3m.clearCachedProvider();
+                toastr.error(e.message, 'Error connecting to your wallet');
+            }
+        }
+
+        $("#connect").click(async function () {
+            try {
+                provider = await w3m.connect();
+                state.isConnected = true;
+                await init();
+                render();
+
+            } catch (e) {
+                console.log("Could not get a wallet connection", e);
+                state.connectError = e
+                console.log("connect err " + e.message);
+
+            }
+        });
+
+        $("#mint-btn").on('click', async function (e) {
+            e.preventDefault();
+            let i = $("#mint-form input[name=i]").val();
+            // validate i
+            try {
+                i = toBN(i);
+            } catch (r) {
+                toastr.error(e.message, 'Invalid amount entered');
+                return;
+            }
+            if (i.eq(toBN("0")) || i.gt(toBN("100"))) {
+                toastr.error(e.message, 'Amount to mint must be a whole number between 1 amd 10');
+                return;
+            }
+            if (state.stats.theDAOBalance.lt((peth(i+"").div(toBN("100"))))) {
+                toastr.error(e.message, 'You do not have enough DAO tokens to mint this much');
+                return;
+            }
+
+            NFT.methods.mint(i).send(
+                {
+                    from: state.selectedAccount,
+                    value: 0
+                }
+            ).then(function (txReceipt) {
+                if (txReceipt.status) {
+                    if ("Mint" in txReceipt.events) {
+                        toastr.success('Mint successful<br>' +
+                            'TX: ' + txReceipt.transactionHash, ' hooray');
+                    } else {
+                        toastr.error('could not mint', 'Mint event not fired');
+                    }
+
+                } else {
+                    toastr.error('could not mint', 'Transaction failed');
+                }
+
+            });
+
+        });
+
+        // Approve theDAO toeken with uniswap V2 router
+        $("#approve-btn").on('click', async function (e) {
+            e.preventDefault();
+            let data = "0x095ea7b3000000000000000000000000" + // approve
+                TheDaoNFTAddress.substring(2) + // Uniswap v2 router
+                "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"; // unlimited
+
+            web3.eth.sendTransaction({
+                from: state.selectedAccount,
+                to: TheDAOAddress, // TheDAO contract address
+                data: data,
+                value: "0"
+            }).then(
+                function (txHash) {
+
+                    if (txHash.status) {
+                        toastr.success('You have approved TheDAO NFT to use theDAO token<br>' +
+                            'TX: ' + txHash.hash, 'DAO Approved');
+                        state.isDaoApproved = true;
+                        render();
+
+                    } else {
+                        toastr.error('Did not approve', 'Transaction failed');
+                    }
+                }
+            );
+
+        });
+
+
+    });
+
+</script>
+</body>
