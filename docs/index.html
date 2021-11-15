@@ -1569,6 +1569,7 @@
                 state.isConnected = true;
                 await init();
             } catch (e) {
+                console.log("error using cached provider", e);
                 w3m.clearCachedProvider();
                 toastr.error(e.message, 'Error connecting to your wallet');
             }
