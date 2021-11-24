@@ -40,8 +40,37 @@
             border: 1px solid #bebebe;
             border-radius: 25px;
             background: rgb(255, 214, 214);
-            background: radial-gradient(circle, rgb(231, 255, 217) 0%, rgb(245, 245, 245) 100%);
+            /* background: radial-gradient(circle, rgb(231, 255, 217) 0%, rgb(245, 245, 245) 100%); */
+            background: radial-gradient(circle at 10%, rgb(231, 255, 217), rgb(245, 245, 245));
+            /*
+                        animation-duration: 3s;
+                        animation-name: slide-grad;
+                        animation-iteration-count: infinite;
+
+             */
         }
+
+        /*
+                @keyframes slide-grad {
+                    from {
+                        background: radial-gradient(circle at 10%, rgba(231, 255, 217), rgb(245, 245, 245));;
+                    }
+
+                    to {
+                        background: radial-gradient(circle at 90%, rgb(231, 255, 217), rgb(245, 245, 245));;
+                    }
+                }
+        */
+        #dapp-burn {
+            padding: 1em;
+            margin-top: 1.5em;
+            box-shadow: 1px 1px 15px 5px #8c8d8d;
+            border: 1px solid #bebebe;
+            border-radius: 25px;
+            background: rgb(255, 214, 214);
+            background: radial-gradient(circle, rgb(203 188 205) 0%, rgb(245, 245, 245) 100%);
+        }
+
 
         #dapp-not-connected {
             background-color: #0d6efd;
@@ -67,7 +96,8 @@
         }
 
         .tile {
-            width:100%; min-width:50px;
+            width: 100%;
+            min-width: 50px;
         }
 
         .contract {
@@ -83,6 +113,10 @@
 
         footer a {
             color: whitesmoke;
+        }
+
+        #dead-balance {
+            font-weight: bold;
         }
 
 
@@ -107,7 +141,7 @@
                     <li>
                         <a class="nav-link" href="#" id="about">
                             <h5 class="ms-auto">Total minted <span
-                                                                   id="nft-total-minted" class="badge bg-warning">?</span> /
+                                    id="nft-total-minted" class="badge bg-warning">?</span> /
                                 1800</h5>
                         </a>
                     </li>
@@ -135,11 +169,14 @@
                         The SEC released an 18-page report on the TheDAO. Here we take this pdf, convert each page
                         to PNGs, then break each PNG into 100 tiles. 1800 tiles are then turned into NFTs.</h3>
                     <p>Each individual NFT will require 1 DAO token to mint, which
-                        gets wrapped inside the NFT. The DAO token can be unwrapped at any time by burning the NFT.</p>
+                        gets wrapped inside the NFT. The DAO token can be unwrapped at any time by burning the NFT. </p>
+
+                    <p>Now listed on OpenSea <a target="_blank" href="https://opensea.io/collection/thenft-project">OpenSea</a>
+                    </p>
 
                 </div>
 
-                <div id="dapp-not-connected" class="alert-primary" >
+                <div id="dapp-not-connected" class="alert-primary">
                     <h4>Please connect your wallet to continue</h4>
 
                 </div>
@@ -147,7 +184,10 @@
                 <div class="jumbotron d-none" id="minting-finished">
                     <h1 class="display-4">Minting finished</h1>
                     <p class="lead">
-                        All 1800 NFTs have been minted and only available on the secondary market. Verified Contract address: <a class="contract" href="https://etherscan.io/address/0xb3895280f69fc50a1fdf51099a4e577b867b63df">0xb3895280f69fc50a1fdf51099a4e577b867b63df</a>
+                        All 1800 NFTs have been minted and only available on the secondary market such as <a
+                            href="https://opensea.io/collection/thenft-project">OpenSea</a>. Verified Contract address:
+                        <a class="contract" target="_blank"
+                           href="https://etherscan.io/address/0xb3895280f69fc50a1fdf51099a4e577b867b63df">thedaonft.eth</a>
                     </p>
                 </div>
 
@@ -155,11 +195,14 @@
 
                     <h1 class="display-4">Mint a piece of history</h1>
                     <p class="lead">
-                        Minting is now open. Verified Contract address: <a class="contract" href="https://etherscan.io/address/0x266830230bf10A58cA64B7347499FD361a011a02">0x266830230bf10A58cA64B7347499FD361a011a02</a>
+                        Minting is still open. Verified Contract address: <a class="contract" target="_blank"
+                                                                             href="https://etherscan.io/address/0x266830230bf10A58cA64B7347499FD361a011a02">thedaonft.eth</a>
                     </p>
-                    <p id="no-dao-tokens"><b>There are 0 TheDAO tokens in your wallet...</b> To mint a NFT, you will need at least 1 whole TheDAO token in your wallet. See <a href="https://thedaotoken.eth.limo/">thedaotoken.eth.limo</a> for info on how to acquire these historical tokens.</p>
+                    <p id="no-dao-tokens"><b>There are 0 TheDAO tokens in your wallet...</b> To mint a NFT, you will
+                        need at least 1 whole TheDAO token in your wallet. See <a href="https://thedaotoken.eth.limo/">thedaotoken.eth.limo</a>
+                        for info on how to acquire these historical tokens.</p>
                     <p id="has-dao-tokens"><b>There are <span id="thedao-balance">x</span> TheDAO tokens in your wallet</b>
-                    1 DAO is needed to mint 1 NFT.
+                        1 DAO is needed to mint 1 NFT.
                     </p>
                     <p class="d-none" id="has-balance">You have minted <b id="nft-balance">x</b> NFTs so far</p>
                     <form id="mint-form">
@@ -167,17 +210,20 @@
                             <div class="col">
                                 <div class="mb-3">
                                     <label for="inputAmount" class="form-label">How many to mint</label>
-                                    <input name="i" value="1" type="number" class="form-control" id="inputAmount" aria-describedby="amountHelp">
-                                    <div id="amountHelp" class="form-text">How many to mint in one transaction. Max 10.</div>
+                                    <input name="i" value="1" type="number" class="form-control" id="inputAmount"
+                                           aria-describedby="amountHelp">
+                                    <div id="amountHelp" class="form-text">How many to mint in one transaction. Max
+                                        10.
+                                    </div>
                                 </div>
                             </div>
                             <div class="col d-flex justify-content-center">
 
-                                    <div id="approve-info">Please approve the TheDAO token first<br>
-                                        <button type="submit" class="btn btn-primary" id="approve-btn">Approve</button>
-                                    </div>
+                                <div id="approve-info">Please approve the TheDAO token first<br>
+                                    <button type="submit" class="btn btn-primary" id="approve-btn">Approve</button>
+                                </div>
 
-                                    <button type="submit" class="btn btn-success" id="mint-btn" >Mint</button>
+                                <button type="submit" class="btn btn-success" id="mint-btn">Mint</button>
 
 
                             </div>
@@ -186,53 +232,107 @@
                     </form>
                 </div>
 
+                <div class="jumbotron d-none" id="dapp-burn">
+
+                    <h1 class="display-4">Burn or restore</h1>
+                    <p class="lead">
+                        You can burn a NFT from <a id="you-own-link" target="_blank" href="">your account</a>, and get 1
+                        DAO back from the NFT. Restoring burned NFTs is possible too!
+                    </p>
+                    <p>Burning is non-destructive, and a 'burned' NFT gets transferred special 'dead' address.
+                        Anybody can restore any NFT that is in the 'dead' address. There 'dead' address is <a
+                                class="contract" target="_blank"
+                                href="https://etherscan.io/token/0x266830230bf10a58ca64b7347499fd361a011a02?a=0x000000000000000000000000000000000074eda0">0x74eda0</a>,
+                        and the balance is: <span id="dead-balance">x</span>. (View on <a target="_blank"
+                                                                                          href="https://opensea.io/0x000000000000000000000000000000000074eda0">OpenSea</a>)
+                    </p>
+                    <p>You will need 5 DAO to restore. 1 DAO gets wrapped in the restored NFT, 4 DAO are taken as a
+                        fee.</p>
+                    <div class="row">
+
+                        <div class="col">
+                            <h3>Burn</h3>
+                            <form id="burn-form">
+                                <div class="mb-3">
+                                    <label for="burn-label" class="form-label">NFT number</label>
+                                    <input type="number" name="burnID" class="form-control" id="burn-label"
+                                           aria-describedby="burn-help">
+                                    <div id="burn-help" class="form-text">
+                                        Burning an NFT will unwrap 1 DAO and place it in your wallet.
+                                    </div>
+                                </div>
+                                <button type="submit" name="burn" class="btn btn-primary">Burn</button>
+                            </form>
+                        </div>
+                        <div class="col">
+                            <h3>Restore</h3>
+                            <form id="restore-form">
+                                <div class="mb-3">
+                                    <label for="exampleInputRestore" class="form-label">NFT number</label>
+                                    <input type="number" name="restoreID" class="form-control" id="exampleInputRestore"
+                                           aria-describedby="restoreHelp">
+                                    <div id="restoreHelp" class="form-text">Restoring an NFT requires 1 DAO that will be
+                                        wrapped, plus a fee of 4 DAO.
+                                    </div>
+                                </div>
+
+                                <button type="submit" name="approve" class="btn btn-primary">Approve</button>
+                                <button type="submit" name="restore" class="btn btn-success">Restore</button>
+
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+
                 <div class="jumbotron " id="gallery">
                     <h1 class="display-4">Sample of some the pieces</h1>
+
                     <div class="container overflow-hidden">
 
                         <div class="row align-items-center gy-3">
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/0.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/1.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/2.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/3.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/4.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/5.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/6.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/7.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/8.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/9.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/10.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/11.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/0.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/1.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/2.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/3.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/4.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/5.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/6.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/7.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/8.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/9.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/10.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/11.png"></div>
 
                         </div>
                         <div class="row align-items-center gy-3">
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/12.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/13.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/14.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/15.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/16.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/17.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/18.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/19.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/20.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/21.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/22.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/23.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/12.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/13.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/14.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/15.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/16.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/17.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/18.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/19.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/20.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/21.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/22.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/23.png"></div>
                         </div>
 
                         <div class="row align-items-center gy-3">
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/24.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/25.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/26.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/27.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/28.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/29.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/30.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/31.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/32.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/33.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/34.png"></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile"  src="img/12/35.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/24.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/25.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/26.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/27.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/28.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/29.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/30.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/31.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/32.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/33.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/34.png"></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><img class="tile" src="img/12/35.png"></div>
                         </div>
 
                     </div>
@@ -263,672 +363,278 @@
 <script src="js/walletconnect/web3-provider.min.js"></script>
 <script>
 
+    const deadAddress = "0x000000000000000000000000000000000074eda0";
     const TheDaoNFTAddress = "0x266830230bf10A58cA64B7347499FD361a011a02"; //test "0xb3895280f69fc50a1fdf51099a4e577b867b63df";
 
-    const TheDaoNFTABI = [
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "_theDAO",
-                    "type": "address"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "_max",
-                    "type": "uint256"
-                }
-            ],
-            "stateMutability": "nonpayable",
-            "type": "constructor"
-        },
-        {
-            "anonymous": false,
-            "inputs": [
-                {
-                    "indexed": true,
-                    "internalType": "address",
-                    "name": "owner",
-                    "type": "address"
-                },
-                {
-                    "indexed": true,
-                    "internalType": "address",
-                    "name": "approved",
-                    "type": "address"
-                },
-                {
-                    "indexed": true,
-                    "internalType": "uint256",
-                    "name": "tokenId",
-                    "type": "uint256"
-                }
-            ],
-            "name": "Approval",
-            "type": "event"
-        },
-        {
-            "anonymous": false,
-            "inputs": [
-                {
-                    "indexed": true,
-                    "internalType": "address",
-                    "name": "owner",
-                    "type": "address"
-                },
-                {
-                    "indexed": true,
-                    "internalType": "address",
-                    "name": "operator",
-                    "type": "address"
-                },
-                {
-                    "indexed": false,
-                    "internalType": "bool",
-                    "name": "approved",
-                    "type": "bool"
-                }
-            ],
-            "name": "ApprovalForAll",
-            "type": "event"
-        },
-        {
-            "anonymous": false,
-            "inputs": [
-                {
-                    "indexed": false,
-                    "internalType": "string",
-                    "name": "",
-                    "type": "string"
-                }
-            ],
-            "name": "BaseURI",
-            "type": "event"
-        },
-        {
-            "anonymous": false,
-            "inputs": [
-                {
-                    "indexed": false,
-                    "internalType": "address",
-                    "name": "owner",
-                    "type": "address"
-                },
-                {
-                    "indexed": false,
-                    "internalType": "uint256",
-                    "name": "tokenId",
-                    "type": "uint256"
-                }
-            ],
-            "name": "Burn",
-            "type": "event"
-        },
-        {
-            "anonymous": false,
-            "inputs": [
-                {
-                    "indexed": false,
-                    "internalType": "address",
-                    "name": "curator",
-                    "type": "address"
-                }
-            ],
-            "name": "Curator",
-            "type": "event"
-        },
-        {
-            "anonymous": false,
-            "inputs": [
-                {
-                    "indexed": false,
-                    "internalType": "address",
-                    "name": "owner",
-                    "type": "address"
-                },
-                {
-                    "indexed": false,
-                    "internalType": "uint256",
-                    "name": "tokenId",
-                    "type": "uint256"
-                }
-            ],
-            "name": "Mint",
-            "type": "event"
-        },
-        {
-            "anonymous": false,
-            "inputs": [
-                {
-                    "indexed": false,
-                    "internalType": "address",
-                    "name": "owner",
-                    "type": "address"
-                },
-                {
-                    "indexed": false,
-                    "internalType": "uint256",
-                    "name": "tokenId",
-                    "type": "uint256"
-                }
-            ],
-            "name": "Restore",
-            "type": "event"
-        },
-        {
-            "anonymous": false,
-            "inputs": [
-                {
-                    "indexed": true,
-                    "internalType": "address",
-                    "name": "from",
-                    "type": "address"
-                },
-                {
-                    "indexed": true,
-                    "internalType": "address",
-                    "name": "to",
-                    "type": "address"
-                },
-                {
-                    "indexed": true,
-                    "internalType": "uint256",
-                    "name": "tokenId",
-                    "type": "uint256"
-                }
-            ],
-            "name": "Transfer",
-            "type": "event"
-        },
-        {
-            "inputs": [],
-            "name": "PDF_SHA_256_HASH",
-            "outputs": [
-                {
-                    "internalType": "string",
-                    "name": "",
-                    "type": "string"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "PNG_SHA_256_HASH",
-            "outputs": [
-                {
-                    "internalType": "string",
-                    "name": "",
-                    "type": "string"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "_to",
-                    "type": "address"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "_tokenId",
-                    "type": "uint256"
-                }
-            ],
-            "name": "approve",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "_holder",
-                    "type": "address"
-                }
-            ],
-            "name": "balanceOf",
-            "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "id",
-                    "type": "uint256"
-                }
-            ],
-            "name": "burn",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "curator",
-            "outputs": [
-                {
-                    "internalType": "address",
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "_tokenId",
-                    "type": "uint256"
-                }
-            ],
-            "name": "getApproved",
-            "outputs": [
-                {
-                    "internalType": "address",
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "_user",
-                    "type": "address"
-                }
-            ],
-            "name": "getStats",
-            "outputs": [
-                {
-                    "internalType": "uint256[]",
-                    "name": "",
-                    "type": "uint256[]"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "_owner",
-                    "type": "address"
-                },
-                {
-                    "internalType": "address",
-                    "name": "_operator",
-                    "type": "address"
-                }
-            ],
-            "name": "isApprovedForAll",
-            "outputs": [
-                {
-                    "internalType": "bool",
-                    "name": "",
-                    "type": "bool"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "i",
-                    "type": "uint256"
-                }
-            ],
-            "name": "mint",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "name",
-            "outputs": [
-                {
-                    "internalType": "string",
-                    "name": "",
-                    "type": "string"
-                }
-            ],
-            "stateMutability": "pure",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "",
-                    "type": "address"
-                },
-                {
-                    "internalType": "address",
-                    "name": "",
-                    "type": "address"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "bytes",
-                    "name": "",
-                    "type": "bytes"
-                }
-            ],
-            "name": "onERC721Received",
-            "outputs": [
-                {
-                    "internalType": "bytes4",
-                    "name": "",
-                    "type": "bytes4"
-                }
-            ],
-            "stateMutability": "pure",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "_tokenId",
-                    "type": "uint256"
-                }
-            ],
-            "name": "ownerOf",
-            "outputs": [
-                {
-                    "internalType": "address",
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "id",
-                    "type": "uint256"
-                }
-            ],
-            "name": "restore",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "_from",
-                    "type": "address"
-                },
-                {
-                    "internalType": "address",
-                    "name": "_to",
-                    "type": "address"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "_tokenId",
-                    "type": "uint256"
-                }
-            ],
-            "name": "safeTransferFrom",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "_from",
-                    "type": "address"
-                },
-                {
-                    "internalType": "address",
-                    "name": "_to",
-                    "type": "address"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "_tokenId",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "bytes",
-                    "name": "_data",
-                    "type": "bytes"
-                }
-            ],
-            "name": "safeTransferFrom",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "_operator",
-                    "type": "address"
-                },
-                {
-                    "internalType": "bool",
-                    "name": "_approved",
-                    "type": "bool"
-                }
-            ],
-            "name": "setApprovalForAll",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "string",
-                    "name": "_uri",
-                    "type": "string"
-                }
-            ],
-            "name": "setBaseURI",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "_curator",
-                    "type": "address"
-                }
-            ],
-            "name": "setCurator",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "bytes4",
-                    "name": "interfaceId",
-                    "type": "bytes4"
-                }
-            ],
-            "name": "supportsInterface",
-            "outputs": [
-                {
-                    "internalType": "bool",
-                    "name": "",
-                    "type": "bool"
-                }
-            ],
-            "stateMutability": "pure",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "symbol",
-            "outputs": [
-                {
-                    "internalType": "string",
-                    "name": "",
-                    "type": "string"
-                }
-            ],
-            "stateMutability": "pure",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "value",
-                    "type": "uint256"
-                }
-            ],
-            "name": "toString",
-            "outputs": [
-                {
-                    "internalType": "string",
-                    "name": "",
-                    "type": "string"
-                }
-            ],
-            "stateMutability": "pure",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "_index",
-                    "type": "uint256"
-                }
-            ],
-            "name": "tokenByIndex",
-            "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "_owner",
-                    "type": "address"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "_index",
-                    "type": "uint256"
-                }
-            ],
-            "name": "tokenOfOwnerByIndex",
-            "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "_tokenId",
-                    "type": "uint256"
-                }
-            ],
-            "name": "tokenURI",
-            "outputs": [
-                {
-                    "internalType": "string",
-                    "name": "",
-                    "type": "string"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "totalSupply",
-            "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "_from",
-                    "type": "address"
-                },
-                {
-                    "internalType": "address",
-                    "name": "_to",
-                    "type": "address"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "_tokenId",
-                    "type": "uint256"
-                }
-            ],
-            "name": "transferFrom",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        }
-    ];
-
+    const TheDaoNFTABI = [{
+        "inputs": [{
+            "internalType": "address",
+            "name": "_theDAO",
+            "type": "address"
+        }, {"internalType": "uint256", "name": "_max", "type": "uint256"}],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": true, "internalType": "address", "name": "owner", "type": "address"}, {
+            "indexed": true,
+            "internalType": "address",
+            "name": "approved",
+            "type": "address"
+        }, {"indexed": true, "internalType": "uint256", "name": "tokenId", "type": "uint256"}],
+        "name": "Approval",
+        "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": true, "internalType": "address", "name": "owner", "type": "address"}, {
+            "indexed": true,
+            "internalType": "address",
+            "name": "operator",
+            "type": "address"
+        }, {"indexed": false, "internalType": "bool", "name": "approved", "type": "bool"}],
+        "name": "ApprovalForAll",
+        "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": false, "internalType": "string", "name": "", "type": "string"}],
+        "name": "BaseURI",
+        "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": false, "internalType": "address", "name": "owner", "type": "address"}, {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+        }],
+        "name": "Burn",
+        "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": false, "internalType": "address", "name": "curator", "type": "address"}],
+        "name": "Curator",
+        "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": false, "internalType": "address", "name": "owner", "type": "address"}, {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+        }],
+        "name": "Mint",
+        "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": false, "internalType": "address", "name": "owner", "type": "address"}, {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+        }],
+        "name": "Restore",
+        "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": true, "internalType": "address", "name": "from", "type": "address"}, {
+            "indexed": true,
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+        }, {"indexed": true, "internalType": "uint256", "name": "tokenId", "type": "uint256"}],
+        "name": "Transfer",
+        "type": "event"
+    }, {
+        "inputs": [],
+        "name": "PDF_SHA_256_HASH",
+        "outputs": [{"internalType": "string", "name": "", "type": "string"}],
+        "stateMutability": "view",
+        "type": "function"
+    }, {
+        "inputs": [],
+        "name": "PNG_SHA_256_HASH",
+        "outputs": [{"internalType": "string", "name": "", "type": "string"}],
+        "stateMutability": "view",
+        "type": "function"
+    }, {
+        "inputs": [{"internalType": "address", "name": "_to", "type": "address"}, {
+            "internalType": "uint256",
+            "name": "_tokenId",
+            "type": "uint256"
+        }], "name": "approve", "outputs": [], "stateMutability": "nonpayable", "type": "function"
+    }, {
+        "inputs": [{"internalType": "address", "name": "_holder", "type": "address"}],
+        "name": "balanceOf",
+        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+        "stateMutability": "view",
+        "type": "function"
+    }, {
+        "inputs": [{"internalType": "uint256", "name": "id", "type": "uint256"}],
+        "name": "burn",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }, {
+        "inputs": [],
+        "name": "curator",
+        "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+        "stateMutability": "view",
+        "type": "function"
+    }, {
+        "inputs": [{"internalType": "uint256", "name": "_tokenId", "type": "uint256"}],
+        "name": "getApproved",
+        "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+        "stateMutability": "view",
+        "type": "function"
+    }, {
+        "inputs": [{"internalType": "address", "name": "_user", "type": "address"}],
+        "name": "getStats",
+        "outputs": [{"internalType": "uint256[]", "name": "", "type": "uint256[]"}],
+        "stateMutability": "view",
+        "type": "function"
+    }, {
+        "inputs": [{"internalType": "address", "name": "_owner", "type": "address"}, {
+            "internalType": "address",
+            "name": "_operator",
+            "type": "address"
+        }],
+        "name": "isApprovedForAll",
+        "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+        "stateMutability": "view",
+        "type": "function"
+    }, {
+        "inputs": [{"internalType": "uint256", "name": "i", "type": "uint256"}],
+        "name": "mint",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }, {
+        "inputs": [],
+        "name": "name",
+        "outputs": [{"internalType": "string", "name": "", "type": "string"}],
+        "stateMutability": "pure",
+        "type": "function"
+    }, {
+        "inputs": [{"internalType": "address", "name": "", "type": "address"}, {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+        }, {"internalType": "uint256", "name": "", "type": "uint256"}, {
+            "internalType": "bytes",
+            "name": "",
+            "type": "bytes"
+        }],
+        "name": "onERC721Received",
+        "outputs": [{"internalType": "bytes4", "name": "", "type": "bytes4"}],
+        "stateMutability": "pure",
+        "type": "function"
+    }, {
+        "inputs": [{"internalType": "uint256", "name": "_tokenId", "type": "uint256"}],
+        "name": "ownerOf",
+        "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+        "stateMutability": "view",
+        "type": "function"
+    }, {
+        "inputs": [{"internalType": "uint256", "name": "id", "type": "uint256"}],
+        "name": "restore",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }, {
+        "inputs": [{"internalType": "address", "name": "_from", "type": "address"}, {
+            "internalType": "address",
+            "name": "_to",
+            "type": "address"
+        }, {"internalType": "uint256", "name": "_tokenId", "type": "uint256"}],
+        "name": "safeTransferFrom",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }, {
+        "inputs": [{"internalType": "address", "name": "_from", "type": "address"}, {
+            "internalType": "address",
+            "name": "_to",
+            "type": "address"
+        }, {"internalType": "uint256", "name": "_tokenId", "type": "uint256"}, {
+            "internalType": "bytes",
+            "name": "_data",
+            "type": "bytes"
+        }], "name": "safeTransferFrom", "outputs": [], "stateMutability": "nonpayable", "type": "function"
+    }, {
+        "inputs": [{"internalType": "address", "name": "_operator", "type": "address"}, {
+            "internalType": "bool",
+            "name": "_approved",
+            "type": "bool"
+        }], "name": "setApprovalForAll", "outputs": [], "stateMutability": "nonpayable", "type": "function"
+    }, {
+        "inputs": [{"internalType": "string", "name": "_uri", "type": "string"}],
+        "name": "setBaseURI",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }, {
+        "inputs": [{"internalType": "address", "name": "_curator", "type": "address"}],
+        "name": "setCurator",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }, {
+        "inputs": [{"internalType": "bytes4", "name": "interfaceId", "type": "bytes4"}],
+        "name": "supportsInterface",
+        "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+        "stateMutability": "pure",
+        "type": "function"
+    }, {
+        "inputs": [],
+        "name": "symbol",
+        "outputs": [{"internalType": "string", "name": "", "type": "string"}],
+        "stateMutability": "pure",
+        "type": "function"
+    }, {
+        "inputs": [{"internalType": "uint256", "name": "value", "type": "uint256"}],
+        "name": "toString",
+        "outputs": [{"internalType": "string", "name": "", "type": "string"}],
+        "stateMutability": "pure",
+        "type": "function"
+    }, {
+        "inputs": [{"internalType": "uint256", "name": "_index", "type": "uint256"}],
+        "name": "tokenByIndex",
+        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+        "stateMutability": "view",
+        "type": "function"
+    }, {
+        "inputs": [{"internalType": "address", "name": "_owner", "type": "address"}, {
+            "internalType": "uint256",
+            "name": "_index",
+            "type": "uint256"
+        }],
+        "name": "tokenOfOwnerByIndex",
+        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+        "stateMutability": "view",
+        "type": "function"
+    }, {
+        "inputs": [{"internalType": "uint256", "name": "_tokenId", "type": "uint256"}],
+        "name": "tokenURI",
+        "outputs": [{"internalType": "string", "name": "", "type": "string"}],
+        "stateMutability": "view",
+        "type": "function"
+    }, {
+        "inputs": [],
+        "name": "totalSupply",
+        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+        "stateMutability": "view",
+        "type": "function"
+    }, {
+        "inputs": [{"internalType": "address", "name": "_from", "type": "address"}, {
+            "internalType": "address",
+            "name": "_to",
+            "type": "address"
+        }, {"internalType": "uint256", "name": "_tokenId", "type": "uint256"}],
+        "name": "transferFrom",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }];
 
 
     const TheDAOAddress = "0xbb9bc244d798123fde783fcc1c72d3bb8c189413";
@@ -1327,7 +1033,6 @@
     }];
 
 
-
     let web3 = new Web3;
     let NFT;
     let TheDAO;
@@ -1343,7 +1048,7 @@
     let toBN = function (str) { // stub function
         return new web3.utils.toBN(str);
     }; // convert to BigNumber
-    let toDAO = function(wei) {
+    let toDAO = function (wei) {
         return web3.utils.toBN((wei)).mul(web3.utils.toBN(100))
     }
 
@@ -1352,7 +1057,7 @@
         selectedAccount: "",
         web3BlockSub: null, // subscription to block updates
         balanceETH: toBN("0"),
-        mintAmount : 1,
+        mintAmount: 1,
 
         stats: {
             theDAOBalance: toBN("0"),
@@ -1485,6 +1190,7 @@
             button.removeClass("btn-secondary");
             $("#dapp-not-connected").show();
             $("#dapp").hide();
+            $("#dapp-burn").hide();
         } else {
             let ac = state.selectedAccount
             let shortAc = ac.substring(0, 4) + '...' + ac.substring(ac.length - 4) + " connected";
@@ -1492,7 +1198,6 @@
             button.removeClass("btn-primary");
             button.addClass("btn-secondary");
             $("#dapp-not-connected").hide();
-
             if (state.stats.NFTsToBeMinted.eq(toBN(0))) {
                 // no more to mint!
                 $("#minting-finished").show();
@@ -1502,43 +1207,62 @@
                 $("#dapp").removeClass("d-none");
             }
 
-
-        }
-
-        if (state.stats.theDAOBalance.eq(toBN("0"))) {
-            $("#no-dao-tokens").show();
-            $("#has-dao-tokens").hide();
-            $("#mint-form").hide();
-
-        } else {
-            $("#mint-form").show();
-            $("#no-dao-tokens").hide();
-            $("#has-dao-tokens").show();
-            let tokens = toDAO(state.stats.theDAOBalance);  // convert to 16 decimal
-            $("#thedao-balance").html(web3.utils.fromWei(tokens)); //
-
-            // show the approve or mint button?
-            if (state.stats.theDAOAllowance.lt(state.stats.theDAOBalance)) {
-                // not approved
-                $("#mint-btn").hide();
-                $("#approve-btn").show();
-                $("#approve-info").show();
-            } else {
-                $("#mint-btn").show();
-                $("#approve-btn").hide();
-                $("#approve-info").hide();
+            if (state.stats.NFTBalance.gt(toBN(0))) {
+                $("#dapp-burn").removeClass("d-none");
+                $("#dapp-burn").show();
             }
 
         }
-        if (state.stats.NFTBalance.gt(toBN(0))) {
-            $("#nft-balance").text(state.stats.NFTBalance.toString());
-            $("#has-balance").removeClass('d-none');
-            $("#has-balance").show();
-        } else {
-            $("#has-balance").hide();
+
+        let isMinting = !toBN(1800).sub(state.stats.NFTsToBeMinted).eq(toBN("0")) && !state.stats.theDAOTotalWrapped.eq(toBN("0"));
+
+        if (isMinting) {
+            if (state.stats.theDAOBalance.eq(toBN("0"))) {
+                // does not have DAO tokens
+                $("#no-dao-tokens").show();
+                $("#has-dao-tokens").hide();
+                $("#mint-form").hide();
+
+            } else {
+                $("#mint-form").show();
+                $("#no-dao-tokens").hide();
+                $("#has-dao-tokens").show();
+                let tokens = toDAO(state.stats.theDAOBalance);  // convert to 16 decimal
+                //;
+                $("#thedao-balance").html(new bigDecimal(web3.utils.fromWei(tokens).toString()).round(2, bigDecimal.RoundingModes.DOWN).getValue()); // round down because we need at least 1
+
+                // show the approve or mint button?
+                if (state.stats.theDAOAllowance.lt(state.stats.theDAOBalance)) {
+                    // not approved
+                    $("#mint-btn").hide();
+                    $("#approve-btn").show();
+                    $("#approve-info").show();
+                } else {
+                    $("#mint-btn").show();
+                    $("#approve-btn").hide();
+                    $("#approve-info").hide();
+                }
+
+            }
+            if (state.stats.NFTBalance.gt(toBN(0))) {
+                $("#nft-balance").text(state.stats.NFTBalance.toString());
+                $("#has-balance").removeClass('d-none');
+                $("#has-balance").show();
+            } else {
+                $("#has-balance").hide();
+            }
         }
 
-        $("#nft-total-minted").text(toBN(1800).sub(state.stats.NFTsToBeMinted).toString());
+        if (state.isConnected) {
+            $("#nft-total-minted").text(toBN(1800).sub(state.stats.NFTsToBeMinted).toString());
+            $("#dapp-burn").show();
+            $("#dapp-burn").removeClass('d-none');
+            $("#dead-balance").text(state.stats.NFTDeadBalance.toString());
+
+            $("#you-own-link").attr("href", "https://opensea.io/accounts/" + state.selectedAccount);
+        }
+
+
     }
 
     $(async function () {
@@ -1604,7 +1328,7 @@
                 toastr.error(e.message, 'Amount to mint must be a whole number between 1 amd 10');
                 return;
             }
-            if (state.stats.theDAOBalance.lt((peth(i+"").div(toBN("100"))))) {
+            if (state.stats.theDAOBalance.lt((peth(i + "").div(toBN("100"))))) {
                 toastr.error(e.message, 'You do not have enough DAO tokens to mint this much');
                 return;
             }
@@ -1631,8 +1355,8 @@
 
         });
 
-        // Approve theDAO toeken with uniswap V2 router
-        $("#approve-btn").on('click', async function (e) {
+        // Approve theDAO token with the NFT contract
+        $("#approve-btn, #restore-form button[name=approve]").on('click', async function (e) {
             e.preventDefault();
             let data = "0x095ea7b3000000000000000000000000" + // approve
                 TheDaoNFTAddress.substring(2) + // Uniswap v2 router
@@ -1656,8 +1380,137 @@
                         toastr.error('Did not approve', 'Transaction failed');
                     }
                 }
-            );
+            ).catch(function (e) {
+                burnButton.prop("disabled", false);
+                toastr.error(e.message, 'Transaction failed');
+            });
 
+        });
+
+        let burnButton = $("#burn-form button[name=burn]");
+        burnButton.on('click', async function (e) {
+            e.preventDefault();
+            let id = $("#burn-form input[name=burnID]").val();
+            // validate id
+            try {
+                id = toBN(id);
+            } catch (r) {
+                toastr.error(e.message, 'Invalid token ID entered');
+                return;
+            }
+            if (id.lt(toBN("0")) || id.gt(toBN("1799"))) {
+                toastr.error(e.message, 'ID must be a number between 9 and 1799');
+                return;
+            }
+            if (state.stats.NFTBalance.eq(toBN("0"))) {
+                toastr.error(e.message, 'You do not own any NFTs to burn');
+                return;
+            }
+            // check if we own it
+            burnButton.prop("disabled", true);
+            let owner = await NFT.methods.ownerOf(id).call();
+            if (owner !== state.selectedAccount) {
+                toastr.error(e.message, 'Cannot burn this piece. You are not the owner, it is not in your account!');
+                burnButton.prop("disabled", false);
+                return;
+            }
+            NFT.methods.burn(id).send({
+                from: state.selectedAccount,
+                value: 0
+            }).then(function (txReceipt) {
+                burnButton.prop("disabled", false);
+                if (txReceipt.status) {
+                    if ("Burn" in txReceipt.events) {
+                        toastr.success('Burn successful<br>' +
+                            'TX: ' + txReceipt.transactionHash, ' hooray');
+                    } else {
+                        toastr.error('could not burn', 'Burn event not fired');
+                    }
+                } else {
+                    toastr.error('could not burn', 'Transaction failed');
+                }
+            }).catch(function (e) {
+                burnButton.prop("disabled", false);
+                toastr.error(e.message, 'Transaction failed');
+            });
+        });
+        let restoreButton = $("#restore-form button[name=restore]");
+        restoreButton.on('click', async function (e) {
+            e.preventDefault();
+
+            let id = $("#restore-form input[name=restoreID]").val();
+            // validate id
+            try {
+                id = toBN(id);
+            } catch (r) {
+                toastr.error(e.message, 'Invalid token ID entered');
+                return;
+            }
+            if (id.lt(toBN("0")) || id.gt(toBN("1799"))) {
+                toastr.error(e.message, 'ID must be a number between 9 and 1799');
+                return;
+            }
+            if (state.stats.NFTDeadBalance.eq(toBN("0"))) {
+                toastr.error(e.message, 'There are 0 tokens available to burn');
+                return;
+            }
+
+            // we need 5 DAO,
+            let five = peth(5 + "").div(toBN("100"));
+            if (state.stats.theDAOBalance.lt(five)) {
+                toastr.error(e.message, 'You do need 5 DAO tokens in your wallet to restore.');
+                return;
+            }
+
+            // check approval
+            if (state.stats.theDAOAllowance.lt(state.stats.theDAOBalance)) {
+                toastr.error(e.message, 'You you will need to approve TheDAO tokens first');
+                return;
+            }
+
+
+
+            // check if we own it
+            restoreButton.prop("disabled", true);
+            let owner = await NFT.methods.ownerOf(id).call();
+            console.log("owner is:"+owner);
+            if (owner !== deadAddress) { //
+                toastr.error(e.message, 'Cannot restore this piece. It is not burned!');
+                restoreButton.prop("disabled", false);
+                return;
+            }
+
+            NFT.methods.restore(id).send({
+                from: state.selectedAccount,
+                value: 0
+            }).then(function (txReceipt) {
+                restoreButton.prop("disabled", false);
+                if (txReceipt.status) {
+                    if ("Restore" in txReceipt.events) {
+                        toastr.success('Restore successful<br>' +
+                            'TX: ' + txReceipt.transactionHash, ' hooray');
+                    } else {
+                        toastr.error('could not restore', 'Restore event not fired');
+                    }
+                } else {
+                    toastr.error('could not restore', 'Transaction failed');
+                }
+            }).catch(function (e) {
+                restoreButton.prop("disabled", false);
+                toastr.error(e.message, 'Transaction failed');
+            });
+
+
+        });
+
+        $(document).mousemove(function (event) {
+            let windowWidth = $(window).width();
+            let windowHeight = $(window).height();
+
+            let mouseXpercentage = Math.round(event.pageX / windowWidth * 100);
+            let mouseYpercentage = Math.round(event.pageY / windowHeight * 100);
+
+            $('#dapp').css('background', 'radial-gradient(circle at ' + mouseXpercentage + '% ' + mouseYpercentage + '%, rgb(231, 255, 217) , rgb(245, 245, 245))');
         });
 
 
