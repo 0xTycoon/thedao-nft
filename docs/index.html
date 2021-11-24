@@ -33,6 +33,10 @@
             color: darkgrey;
         }
 
+        #about {
+            margin-top: 0.3em;
+        }
+
         #dapp, #minting-finished {
             padding: 1em;
             margin-top: 1.5em;
@@ -82,7 +86,18 @@
         }
 
         #no-dao-tokens, #has-dao-tokens {
+            padding: 1.4em;
             background: #fdff8d29;
+        }
+
+        #no-dao-tokens {
+            padding: 1.4em;
+            background: #beff2e;
+            border-radius: 8px;
+        }
+
+        #no-dao-tokens A {
+            font-weight: bold;
         }
 
         #gallery {
@@ -199,8 +214,8 @@
                                                                              href="https://etherscan.io/address/0x266830230bf10A58cA64B7347499FD361a011a02">thedaonft.eth</a>
                     </p>
                     <p id="no-dao-tokens"><b>There are 0 TheDAO tokens in your wallet...</b> To mint a NFT, you will
-                        need at least 1 whole TheDAO token in your wallet. See <a href="https://thedaotoken.eth.limo/">thedaotoken.eth.limo</a>
-                        for info on how to acquire these historical tokens.</p>
+                        need at least 1 whole TheDAO token in your wallet. See <a target="_blank" href="https://thedaotoken.eth.limo/">thedaotoken.eth.limo</a>
+                        for info on how to acquire these historical tokens. You can mint 10 NFTs at a time, so it is best to get at least 10 TheDAO tokens.</p>
                     <p id="has-dao-tokens"><b>There are <span id="thedao-balance">x</span> TheDAO tokens in your wallet</b>
                         1 DAO is needed to mint 1 NFT.
                     </p>
@@ -251,7 +266,7 @@
                     <div class="row">
 
                         <div class="col">
-                            <h3>Burn</h3>
+                            <h3>Burn your NFT</h3>
                             <form id="burn-form">
                                 <div class="mb-3">
                                     <label for="burn-label" class="form-label">NFT number</label>
@@ -265,7 +280,7 @@
                             </form>
                         </div>
                         <div class="col">
-                            <h3>Restore</h3>
+                            <h3>Restore a NFT</h3>
                             <form id="restore-form">
                                 <div class="mb-3">
                                     <label for="exampleInputRestore" class="form-label">NFT number</label>
@@ -276,8 +291,8 @@
                                     </div>
                                 </div>
 
-                                <button type="submit" name="approve" class="btn btn-primary">Approve</button>
-                                <button type="submit" name="restore" class="btn btn-success">Restore</button>
+                                <button type="submit" name="approve" class="btn btn-primary" id="approve-restore">Approve</button>
+                                <button type="submit" name="restore" class="btn btn-success" id="restore-btn">Restore</button>
 
                             </form>
                         </div>
@@ -350,7 +365,8 @@
     <!-- Copyright -->
     <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
         A DAO Museum Project, Source (MIT)
-        <a href="https://github.com/0xTycoon/thedao-nft">https://github.com/0xTycoon/thedao-nft</a>
+        <a href="https://github.com/0xTycoon/thedao-nft">https://github.com/0xTycoon/thedao-nft</a><br>
+        Discord: <a href="discord.gg/XJntkpm5Ug">discord.gg/XJntkpm5Ug</a>
     </div>
     <!-- Copyright -->
 </footer>
@@ -1260,6 +1276,20 @@
             $("#dead-balance").text(state.stats.NFTDeadBalance.toString());
 
             $("#you-own-link").attr("href", "https://opensea.io/accounts/" + state.selectedAccount);
+
+            if (state.stats.theDAOAllowance.lt(state.stats.theDAOBalance)) {
+
+                $("#approve-restore").show();
+            } else {
+                $("#approve-restore").hide();
+            }
+
+            let five = peth(5 + "").div(toBN("100"));
+            if (state.stats.theDAOBalance.lt(five)) {
+              //  $("#restore-btn").prop("disabled", true);
+            } else {
+             //   $("#restore-btn").prop("enabled", false);
+            }
         }
 
 
