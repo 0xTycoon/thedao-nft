@@ -76,9 +76,11 @@
         }
 
 
-        #dapp-not-connected {
+        #dapp-not-connected, #dapp-wrong-network {
             background-color: #0d6efd;
             color: #f0f0f0;
+            text-align: center;
+            padding: 1.3em;
         }
 
         #mint-btn {
@@ -192,8 +194,10 @@
                 </div>
 
                 <div id="dapp-not-connected" class="alert-primary">
-                    <h4>Please connect your wallet to continue</h4>
-
+                    <h4>Please connect your wallet to continue 👆</h4>
+                </div>
+                <div id="dapp-wrong-network" class="alert-primary d-none">
+                    <h4>Ooops! Wrong Network. Please switch to the Ethereum Mainnet 👆</h4>
                 </div>
 
                 <div class="jumbotron d-none" id="minting-finished">
@@ -1074,7 +1078,7 @@
         web3BlockSub: null, // subscription to block updates
         balanceETH: toBN("0"),
         mintAmount: 1,
-
+        networkID : null,
         stats: {
             theDAOBalance: toBN("0"),
             theDAOAllowance: toBN("0"),
@@ -1121,6 +1125,7 @@
                 console.log(error);
                 console.log("disconnected, provider is" + provider.isConnected);
                 provider.disconnect();
+                unsubscribeEvents();
                 provider = null;
                 state.isConnected = false;
                 try {
@@ -1180,6 +1185,8 @@
         state.selectedAccount = accounts[0];
         web3.eth.defaultAccount = state.selectedAccount;
         console.log("selected account" + state.selectedAccount);
+        state.networkID = await web3.eth.net.getId();
+
         if (blockHeader) {
             state.bloom = blockHeader.logsBloom;
             state.balanceETH = await web3.eth.getBalance(state.selectedAccount);
@@ -1193,6 +1200,7 @@
                 state.stats.NFTBalance = toBN(result[5]);
             } catch (e) {
                 console.log(e);
+                // display the error
             }
         }
 
@@ -1214,6 +1222,12 @@
             button.removeClass("btn-primary");
             button.addClass("btn-secondary");
             $("#dapp-not-connected").hide();
+            if (state.networkID !== 1) {
+                $("#dapp-wrong-network").show();
+                $("#dapp-wrong-network").removeClass("d-none");
+                return;
+            }
+
             if (state.stats.NFTsToBeMinted.eq(toBN(0))) {
                 // no more to mint!
                 $("#minting-finished").show();
@@ -1312,6 +1326,7 @@
             }
             */
         };
+        state.networkID===1
         const w3m = new Web3Modal({
             network: "mainnet", // optional
             cacheProvider: true, // optional
