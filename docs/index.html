@@ -1058,7 +1058,7 @@
     let TheDAO;
     let provider;
     let Web3Modal;
-
+    let w3m; // instance of Web3Modal
     let feth = function (v) { // stub function
         return "NaN"
     }; // format ETH (WEI to ETH)
@@ -1074,7 +1074,9 @@
 
     let state = {
         isConnected: false,
+        isPreview: true,
         selectedAccount: "",
+        httpProviderInterval: null,
         web3BlockSub: null, // subscription to block updates
         balanceETH: toBN("0"),
         mintAmount: 1,
@@ -1110,9 +1112,20 @@
         if (state.web3BlockSub == null) {
             await subscribeEvents();
         }
-
+        unsubscribeEvents();
         async function subscribeEvents() {
             state.web3BlockSub = await web3.eth.subscribe('newBlockHeaders', async function (error, result) {
+                if (error) {
+                    if (state.httpProviderInterval === null) {
+                        state.httpProviderInterval = setInterval(async function() {
+                            state.block = await web3.eth.getBlock("latest")  ;
+                            console.log("got new block via http: " + state.block);
+                            await updateState(state.block);
+                            render();
+                        }, 12000); // update every 12sec
+                    }
+                    return null;
+                }
                 console.log("got new block: " + result.number);
                 await updateState(result);
                 try {
@@ -1121,47 +1134,53 @@
                 }
             });
 
-            provider.on("disconnect", async (error) => {
-                console.log(error);
-                console.log("disconnected, provider is" + provider.isConnected);
-                provider.disconnect();
-                unsubscribeEvents();
-                provider = null;
-                state.isConnected = false;
-                try {
-                    render();
-                } catch (e) {
-                }
-            });
+            if (typeof provider.on === 'function') {
 
-            // reload on account change
-            provider.on("accountsChanged", async (accounts) => {
-                console.log(accounts);
-                console.log("account changed");
-                location.reload();
-                try {
+
+                provider.on("disconnect", async (error) => {
+                    console.log(error);
+                    console.log("disconnected, provider is" + provider.isConnected);
+                    provider.disconnect();
+                    unsubscribeEvents();
+                    provider = null;
+                    state.isConnected = false;
+                    w3m.clearCachedProvider();
+                    try {
+                        render();
+                    } catch (e) {
+                    }
+                });
+
+                // reload on account change
+                provider.on("accountsChanged", async (accounts) => {
+                    console.log(accounts);
+                    console.log("account changed");
+                    location.reload();
+                    try {
+                        await updateState();
+                    } catch (e) {
+                    }
+                    render();
+                });
+
+                // reload on chain change
+                provider.on("chainChanged", async (accounts) => {
+                    console.log(accounts);
+                    console.log("chain changed");
+                    location.reload();
+                });
+
+                provider.on("connect", async (info) => {
+                    console.log("connected!")
+                    console.log(info);
                     await updateState();
-                } catch (e) {
-                }
-                render();
-            });
+                    try {
+                        render();
+                    } catch (e) {
+                    }
+                });
+            }
 
-            // reload on chain change
-            provider.on("chainChanged", async (accounts) => {
-                console.log(accounts);
-                console.log("chain changed");
-                location.reload();
-            });
-
-            provider.on("connect", async (info) => {
-                console.log("connected!")
-                console.log(info);
-                await updateState();
-                try {
-                    render();
-                } catch (e) {
-                }
-            });
         }
 
         async function unsubscribeEvents() {
@@ -1173,6 +1192,10 @@
                     }
                 });
             }
+            if (state.httpProviderInterval > 0) {
+                clearInterval(state.httpProviderInterval);
+                state.httpProviderInterval = null;
+            }
         }
 
         render();
@@ -1182,6 +1205,9 @@
     async function updateState(blockHeader) {
 
         let accounts = await web3.eth.getAccounts();
+        if (accounts.length === 0) {
+            accounts[0] = deadAddress;
+        }
         state.selectedAccount = accounts[0];
         web3.eth.defaultAccount = state.selectedAccount;
         console.log("selected account" + state.selectedAccount);
@@ -1208,7 +1234,7 @@
 
     function render() {
         let button = $("#connect");
-        if ((!state.isConnected) && (state.selectedAccount.length === 0)) {
+        if ((!state.isConnected) && (state.selectedAccount.length === 0) || state.selectedAccount === deadAddress) {
             button.text("Connect Wallet");
             button.addClass("btn-primary");
             button.removeClass("btn-secondary");
@@ -1283,7 +1309,9 @@
             }
         }
 
-        if (state.isConnected) {
+        if (state.isPreview) {
+            $("#nft-total-minted").text(toBN(1800).sub(state.stats.NFTsToBeMinted).toString());
+        } else if (state.isConnected) {
             $("#nft-total-minted").text(toBN(1800).sub(state.stats.NFTsToBeMinted).toString());
             $("#dapp-burn").show();
             $("#dapp-burn").removeClass('d-none');
@@ -1327,7 +1355,7 @@
             */
         };
         state.networkID===1
-        const w3m = new Web3Modal({
+        w3m = new Web3Modal({
             network: "mainnet", // optional
             cacheProvider: true, // optional
             providerOptions // required
@@ -1341,6 +1369,19 @@
                 console.log("error using cached provider", e);
                 w3m.clearCachedProvider();
                 toastr.error(e.message, 'Error connecting to your wallet');
+            }
+        } else {
+            provider = new Web3.providers.HttpProvider("https://mainnet.infura.io/v3/35247c5aca8a416bb22a01e56ab022dc");
+            try {
+                state.isConnected = false;
+                state.isPreview = true;
+                await init();
+            }  catch (e) {
+                state.isConnected = false;
+                state.isPreview = false;
+                toastr.error(e.message, 'Error connecting to your wallet');
+                console.log(e);
+
             }
         }
 
