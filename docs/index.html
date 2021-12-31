@@ -1109,10 +1109,11 @@
         }
         let block = await web3.eth.getBlock("latest");
         await updateState(block);
+        unsubscribeEvents();
         if (state.web3BlockSub == null) {
             await subscribeEvents();
         }
-        unsubscribeEvents();
+
         async function subscribeEvents() {
             state.web3BlockSub = await web3.eth.subscribe('newBlockHeaders', async function (error, result) {
                 if (error) {
