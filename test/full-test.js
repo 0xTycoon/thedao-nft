@@ -4,7 +4,7 @@ const {ContractFactory, utils, BigNumber} = require('ethers');
 
 describe("TheDAONFT", function () {
 
-  let TheNft;
+  let TheNFT;
   let nft;
   let TheDAOMock; // fake thedao contract
   let theDao; // instance of TheDAOMock
