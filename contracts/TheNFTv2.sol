@@ -1,3 +1,4 @@
+// SYS 64738
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.10;
@@ -60,7 +61,6 @@ As soon as it's minted, the NFT gets upgraded.
 
 */
 
-import "hardhat/console.sol";
 import "./TheNFT.sol";
 //import "./safemath.sol"; // we don't need it
 
@@ -183,7 +183,7 @@ contract TheNFTV2 {
         ret[6] = theDAO.balanceOf(address(v1));          // amount of DAO held by v1
         ret[7] = balanceOf(UPGRADE_ADDRESS);             // how many NFTs to be upgraded
         ret[8] = balanceOf(DEAD_ADDRESS);
-    return ret;
+        return ret;
     }
 
     function upgrade(uint256[] calldata _ids) external {
