@@ -47,6 +47,10 @@ balanceOf(address(this)) is used to track how many tokens are yet to be minted
 
 This upgrade fixes a bug with approvals.
 
+An upgrade method is provided
+When minting, we will still use the old contract to mint,
+As soon as it's minted, the NFT gets upgraded.
+
 */
 
 import "hardhat/console.sol";
@@ -54,7 +58,7 @@ import "./TheNFT.sol";
 //import "./safemath.sol"; // we don't need it
 
 contract TheNFTV2 {
-    ITheDAOv1 v1;                                              // points to v1 of TheNFT
+    ITheNFTv1 v1;                                              // points to v1 of TheNFT
     /**
     * @dev PNG_SHA_256_HASH is a sha256 hash-sum of all 1800 bitmap tiles saved in the PNG format
     * (the final hash)
@@ -105,7 +109,7 @@ contract TheNFTV2 {
      * @dev BaseURI is fired when the baseURI changed (set by the Curator)
      */
     event BaseURI(string);
-
+    address public proxyRegistryAddress; // whitelist OS proxies
     /**
     * @dev TheNFT constructor
     * @param _theDAO address of TheDAO contract
@@ -115,16 +119,19 @@ contract TheNFTV2 {
     constructor(
         address _theDAO,
         uint256 _max,
-        address _v1
+        address _v1,
+        address _proxyRegistryAddress
     ) {
         curator = msg.sender;
         theDAO = IERC20(_theDAO);
-        v1 = ITheDAOv1(_v1);
+        v1 = ITheNFTv1(_v1);
         max = _max;
+        proxyRegistryAddress = _proxyRegistryAddress;
+        /* We will use v1 to track minting */
         //balances[address(this)] = _max; // track how many haven't been minted
 
         uint256 remaining = v1.balanceOf(_v1);
-        balances[UPGRADE_ADDRESS] = max - remaining; // set the balance of minted
+        balances[UPGRADE_ADDRESS] = max;        // track how many haven't been upgraded
         theDAO.approve(_v1, type(uint256).max); // allow v1 to spend our DAO
     }
 
@@ -158,16 +165,18 @@ contract TheNFTV2 {
     /**
     * @dev getStats helps to fetch some stats for the UI in a single web3 call
     * @param _user the address to return the report for
-    * @return uint256[6] the stats
+    * @return uint256[8] the stats
     */
     function getStats(address _user) external view returns(uint256[] memory) {
-        uint[] memory ret = new uint[](6);
+        uint[] memory ret = new uint[](8);
         ret[0] = theDAO.balanceOf(_user);                // amount of TheDAO tokens owned by _user
         ret[1] = theDAO.allowance(_user, address(this)); // amount of DAO this contract is approved to spend
-        ret[2] = balanceOf(address(this));               // how many NFTs to be minted
-        ret[3] = balanceOf(DEAD_ADDRESS);                // how many NFTs are burned
+        ret[2] = v1.balanceOf(address(v1));              // how many NFTs to be minted
+        ret[3] = v1.balanceOf(DEAD_ADDRESS);             // how many NFTs are burned (v1)
         ret[4] = theDAO.balanceOf(address(this));        // amount of DAO held by this contract
         ret[5] = balanceOf(_user);                       // how many _user has
+        ret[6] = theDAO.balanceOf(address(v1));          // amount of DAO held by v1
+        ret[7] = balanceOf(address(UPGRADE_ADDRESS));    // how many NFTs to be upgraded
         return ret;
     }
 
@@ -192,7 +201,7 @@ contract TheNFTV2 {
     function mint(uint256 i) external {
         uint256 id = max - v1.balanceOf(address(v1));                    // id is the next assigned id
         require(id < max, "minting finished");
-        require (i > 0 && i <= 10, "must be between 1 and 10");
+        require (i > 0 && i <= 100, "must be between 1 and 100");
         if (i + id > max) {                                            // if it goes over the max supply
             i = max -  id;                                             // cap it
         }
@@ -469,6 +478,10 @@ contract TheNFTV2 {
     * @return True if `_operator` is an approved operator for `_owner`, false otherwise
     */
     function isApprovedForAll(address _owner, address _operator) public view returns (bool) {
+        ProxyRegistry proxyRegistry = ProxyRegistry(proxyRegistryAddress);
+        if (address(proxyRegistry.proxies(_owner)) == _operator) {
+            return true;
+        }
         return approvalAll[_owner][_operator];
     }
 
@@ -586,9 +599,18 @@ contract TheNFTV2 {
     }
 }
 
-interface ITheDAOv1 {
-    function balanceOf(address) external returns(uint256);
-    function ownerOf(uint256) external returns(address);
+contract OwnableDelegateProxy {}
+
+/**
+ * Used to delegate ownership of a contract to another address, to save on unneeded transactions to approve contract use for users
+ */
+contract ProxyRegistry {
+    mapping(address => OwnableDelegateProxy) public proxies;
+}
+
+interface ITheNFTv1 {
+    function balanceOf(address) external view returns(uint256);
+    function ownerOf(uint256) external view returns(address);
     function transferFrom(address,address,uint256) external;
     function burn(uint256) external;
     function mint(uint256) external;

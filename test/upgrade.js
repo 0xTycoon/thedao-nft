@@ -1,7 +1,9 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const {ContractFactory, utils, BigNumber} = require('ethers');
-
+/**
+* This test of for the mainnet only
+ */
 describe("TheDAONFTUpgrade", function () {
 
     let v1;
@@ -26,8 +28,8 @@ describe("TheDAONFTUpgrade", function () {
     let TheDAOAddr = "0xbb9bc244d798123fde783fcc1c72d3bb8c189413";
     let v1Addrr = "0x266830230bf10a58ca64b7347499fd361a011a02";
     let tycoon;
-    const tycoon_address = "0xc43473fa66237e9af3b2d886ee1205b81b14b2c8"
-
+    const tycoon_address = "0xc43473fa66237e9af3b2d886ee1205b81b14b2c8";
+   const OS_REGISTRY = "0xa5409ec958C83C3f309868babACA7c86DCB077c1";
     before(async function () {
 
         [owner, simp, elizabeth] = await ethers.getSigners();
@@ -43,7 +45,8 @@ describe("TheDAONFTUpgrade", function () {
         nft = await TheNFT.deploy(
             TheDAOAddr,
             TOTAL_SUPPLY,
-            v1Addrr
+            v1Addrr,
+            OS_REGISTRY
         );
         await nft.deployed();
 
@@ -59,6 +62,34 @@ describe("TheDAONFTUpgrade", function () {
 
     });
 
+    it("Should produce an ownership object", async function () {
+        let stats = await v1.getStats(tycoon_address);
+        let minted = TOTAL_SUPPLY - (stats[2]);
+        console.log("minted is: " + minted);
+        let obj = {};
+        let ownerOf = {};
+        let getObj = async function (i) {
+            let o =  {
+                "id" : i,
+                "ap" : await v1.getApproved(i),
+            };
+            return o;
+        }
+        for (let i = 0; i < minted; i++) {
+            let a = await v1.ownerOf(i);
+            ownerOf[i] = a;
+            if (typeof obj[a] === "undefined") {
+                obj[a] = [await getObj(i)]
+            } else {
+                let m = await getObj(i);
+                obj[a].push(m);
+            }
+        }
+        obj["ownerOf"] = ownerOf;
+        console.log(JSON.stringify(obj));
+
+    });
+
     it("Should upgrade previously minted", async function () {
         let stats = await v1.getStats(tycoon_address);
         let b = TOTAL_SUPPLY - stats[2];
@@ -68,6 +99,11 @@ describe("TheDAONFTUpgrade", function () {
         let ids = [TOTAL_SUPPLY - stats[2]];
         await v1.connect(tycoon).setApprovalForAll(nft.address, true);
         expect(await nft.connect(tycoon).upgrade(ids))
+            .to.emit(v1, "Burn") // old nft burns
+        ;
+
+        // multiple
+        expect(await nft.connect(tycoon).upgrade([19, 15, 363]))
             .to.emit(v1, "Burn") // old nft burns
         ;
 
@@ -82,6 +118,8 @@ describe("TheDAONFTUpgrade", function () {
 
 
     });
+
+
 
 });
 

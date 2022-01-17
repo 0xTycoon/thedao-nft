@@ -40,6 +40,8 @@ The NFT can be burned to unwrap 1 TheDAO token, which is a 16 decimal ERC20 toke
 This piece is from page $pageID, tile $tileID (serial numbers start from 0)
 
 More details: thedaonft.eth
+
+(This NFT was minted using the V1 contract and upgraded to V2)
   ";
         $obj->image = "ipfs://QmRX4tA5VtPPvetDdTx9SD9Wm1ty4zzeqHzq4y9guvUHAk/$i/$t.png";
         $obj->attributes = [];
