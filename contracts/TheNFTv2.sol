@@ -3,6 +3,13 @@
 pragma solidity ^0.8.10;
 
 /*
+  ::::::::::: :::    ::: :::::::::: ::::    ::: :::::::::: :::::::::::
+     :+:     :+:    :+: :+:        :+:+:   :+: :+:            :+:
+    +:+     +:+    +:+ +:+        :+:+:+  +:+ +:+            +:+
+   +#+     +#++:++#++ +#++:++#   +#+ +:+ +#+ :#::+::#       +#+
+  +#+     +#+    +#+ +#+        +#+  +#+#+# +#+            +#+
+ #+#     #+#    #+# #+#        #+#   #+#+# #+#            #+#
+###     ###    ### ########## ###    #### ###            ###
 
 TheNFTv2 - TheDAO NFT
 thedaonft.eth
@@ -129,8 +136,6 @@ contract TheNFTV2 {
         proxyRegistryAddress = _proxyRegistryAddress;
         /* We will use v1 to track minting */
         //balances[address(this)] = _max; // track how many haven't been minted
-
-        uint256 remaining = v1.balanceOf(_v1);
         balances[UPGRADE_ADDRESS] = max;        // track how many haven't been upgraded
         theDAO.approve(_v1, type(uint256).max); // allow v1 to spend our DAO
     }
@@ -165,10 +170,10 @@ contract TheNFTV2 {
     /**
     * @dev getStats helps to fetch some stats for the UI in a single web3 call
     * @param _user the address to return the report for
-    * @return uint256[8] the stats
+    * @return uint256[9] the stats
     */
     function getStats(address _user) external view returns(uint256[] memory) {
-        uint[] memory ret = new uint[](8);
+        uint[] memory ret = new uint[](9);
         ret[0] = theDAO.balanceOf(_user);                // amount of TheDAO tokens owned by _user
         ret[1] = theDAO.allowance(_user, address(this)); // amount of DAO this contract is approved to spend
         ret[2] = v1.balanceOf(address(v1));              // how many NFTs to be minted
@@ -176,8 +181,9 @@ contract TheNFTV2 {
         ret[4] = theDAO.balanceOf(address(this));        // amount of DAO held by this contract
         ret[5] = balanceOf(_user);                       // how many _user has
         ret[6] = theDAO.balanceOf(address(v1));          // amount of DAO held by v1
-        ret[7] = balanceOf(address(UPGRADE_ADDRESS));    // how many NFTs to be upgraded
-        return ret;
+        ret[7] = balanceOf(UPGRADE_ADDRESS);             // how many NFTs to be upgraded
+        ret[8] = balanceOf(DEAD_ADDRESS);
+    return ret;
     }
 
     function upgrade(uint256[] calldata _ids) external {

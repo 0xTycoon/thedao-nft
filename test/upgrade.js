@@ -28,7 +28,7 @@ describe("TheDAONFTUpgrade", function () {
     let TheDAOAddr = "0xbb9bc244d798123fde783fcc1c72d3bb8c189413";
     let v1Addrr = "0x266830230bf10a58ca64b7347499fd361a011a02";
     let tycoon;
-    const tycoon_address = "0xc43473fa66237e9af3b2d886ee1205b81b14b2c8";
+    const tycoon_address = "0xc43473fA66237e9AF3B2d886Ee1205b81B14b2C8";
    const OS_REGISTRY = "0xa5409ec958C83C3f309868babACA7c86DCB077c1";
     before(async function () {
 
@@ -116,6 +116,34 @@ describe("TheDAONFTUpgrade", function () {
         expect(await theDao.connect(tycoon).approve(nft.address, unlimited)).to.emit(theDao, "Approval");
         expect(await nft.connect(tycoon).mint(1)).to.emit(nft, "Mint");
 
+
+    });
+
+    it("Should burn and restore", async function () {
+
+        await expect(nft.connect(tycoon).burn(533)).to.emit(nft, "Burn").withArgs(tycoon_address, 533)
+            .to.emit(theDao, "Transfer").withArgs(nft.address, tycoon_address, peth("1").div("100"));
+
+        // check the state
+        stats = await nft.getStats(tycoon_address);
+        console.log(feth(stats[0].mul("100")));
+        let startingBal = feth(stats[0].mul("100"));
+        let expectedDAO = peth("200").sub(peth(TOTAL_SUPPLY+"").div("100")); // start with 20000 , minus 1800
+        expectedDAO = expectedDAO.add(peth("1").div("100")); //  add 1 dao we received after burning
+
+        //expect(stats[0]).to.be.equal(expectedDAO); // 1 extra dao token
+        expect(stats[8]).to.be.equal(1); // 1 NFT in the dead address
+
+        // set the curator to be elizabeth so commissions go to her
+        expect(await nft.setCurator(elizabeth.address)).to.emit(nft, 'OwnershipTransferred').withArgs(owner.address, elizabeth.address);
+
+        // restore the NFT, elizabeth will get the fee, nft will store 1 dao
+        await expect(nft.connect(tycoon).restore(533)).to.emit(nft, "Restore").withArgs(tycoon_address, 533).to.emit(theDao, "Transfer").withArgs(tycoon_address, elizabeth.address, peth(RESTORE_FEE+"").div("100")).to.emit(theDao, "Transfer").withArgs(tycoon_address, nft.address, peth("1").div("100")).to.emit(nft, "Transfer").withArgs(DEAD_ADDRESS, tycoon_address, 533);
+
+        // check the state
+        stats = await nft.getStats(tycoon_address);
+        console.log(startingBal);
+        //expect(feth(stats[0].mul("100"))).to.be.equal(startingBal - 5); // owner should have 5 DAO less
 
     });
 
