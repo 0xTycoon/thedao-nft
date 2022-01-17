@@ -76,7 +76,6 @@ contract TheNFTV2 {
     */
     string public constant PDF_SHA_256_HASH = "6c9ae041b9b9603da01d0aa4d912586c8d85b9fe1932c57f988d8bd0f9da3bc7";
     address private constant DEAD_ADDRESS = address(0x74eda0); // unwrapped NFTs go here
-    address private constant UPGRADE_ADDRESS = address(0x420); // NFTs to be upgraded
     address public curator;                                    // the curator receives restoration fees
     string private assetURL;
     string private baseURI;
@@ -134,9 +133,8 @@ contract TheNFTV2 {
         v1 = ITheNFTv1(_v1);
         max = _max;
         proxyRegistryAddress = _proxyRegistryAddress;
-        /* We will use v1 to track minting */
-        //balances[address(this)] = _max; // track how many haven't been minted
-        balances[UPGRADE_ADDRESS] = max;        // track how many haven't been upgraded
+        /* We will use v1 to mint */
+        balances[address(this)] = max;        // track how many haven't been upgraded
         theDAO.approve(_v1, type(uint256).max); // allow v1 to spend our DAO
     }
 
@@ -154,10 +152,6 @@ contract TheNFTV2 {
     modifier regulated(address _to) {
         require(
             _to != DEAD_ADDRESS,
-            "cannot send to dead address"
-        );
-        require(
-            _to != UPGRADE_ADDRESS,
             "cannot send to dead address"
         );
         require(
@@ -185,7 +179,7 @@ contract TheNFTV2 {
         ret[4] = theDAO.balanceOf(address(this));        // amount of DAO held by this contract
         ret[5] = balanceOf(_user);                       // how many _user has
         ret[6] = theDAO.balanceOf(address(v1));          // amount of DAO held by v1
-        ret[7] = balanceOf(UPGRADE_ADDRESS);             // how many NFTs to be upgraded
+        ret[7] = balanceOf(address(this));             // how many NFTs to be upgraded
         ret[8] = balanceOf(DEAD_ADDRESS);
         return ret;
     }
@@ -201,7 +195,7 @@ contract TheNFTV2 {
 
     function _upgrade(uint256 id) internal {
         v1.burn(id);                                    // take DAO token out
-        _transfer(UPGRADE_ADDRESS, msg.sender, id);     // issue new nft
+        _transfer(address(this), msg.sender, id);     // issue new nft
         emit Mint(msg.sender, id);
     }
 
