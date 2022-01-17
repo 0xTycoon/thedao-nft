@@ -157,6 +157,10 @@ contract TheNFTV2 {
             "cannot send to dead address"
         );
         require(
+            _to != UPGRADE_ADDRESS,
+            "cannot send to dead address"
+        );
+        require(
             _to != address(this),
             "cannot send to self"
         );
