@@ -29,7 +29,6 @@ describe("TheDAONFTUpgrade", function () {
     let v1Addrr = "0x266830230bf10a58ca64b7347499fd361a011a02";
     let tycoon;
     const tycoon_address = "0xc43473fA66237e9AF3B2d886Ee1205b81B14b2C8";
-   const OS_REGISTRY = "0xa5409ec958C83C3f309868babACA7c86DCB077c1";
     before(async function () {
 
         [owner, simp, elizabeth] = await ethers.getSigners();
@@ -45,8 +44,7 @@ describe("TheDAONFTUpgrade", function () {
         nft = await TheNFT.deploy(
             TheDAOAddr,
             TOTAL_SUPPLY,
-            v1Addrr,
-            OS_REGISTRY
+            v1Addrr
         );
         await nft.deployed();
 

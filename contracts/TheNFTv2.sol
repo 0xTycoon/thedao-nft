@@ -115,7 +115,6 @@ contract TheNFTV2 {
      * @dev BaseURI is fired when the baseURI changed (set by the Curator)
      */
     event BaseURI(string);
-    address public proxyRegistryAddress; // whitelist OS proxies
     /**
     * @dev TheNFT constructor
     * @param _theDAO address of TheDAO contract
@@ -125,14 +124,12 @@ contract TheNFTV2 {
     constructor(
         address _theDAO,
         uint256 _max,
-        address _v1,
-        address _proxyRegistryAddress
+        address _v1
     ) {
         curator = msg.sender;
         theDAO = IERC20(_theDAO);
         v1 = ITheNFTv1(_v1);
         max = _max;
-        proxyRegistryAddress = _proxyRegistryAddress;
         /* We will use v1 to mint */
         balances[address(this)] = max;        // track how many haven't been upgraded
         theDAO.approve(_v1, type(uint256).max); // allow v1 to spend our DAO
@@ -482,10 +479,6 @@ contract TheNFTV2 {
     * @return True if `_operator` is an approved operator for `_owner`, false otherwise
     */
     function isApprovedForAll(address _owner, address _operator) public view returns (bool) {
-        ProxyRegistry proxyRegistry = ProxyRegistry(proxyRegistryAddress);
-        if (address(proxyRegistry.proxies(_owner)) == _operator) {
-            return true;
-        }
         return approvalAll[_owner][_operator];
     }
 
@@ -601,15 +594,6 @@ contract TheNFTV2 {
         }
         return string(buffer);
     }
-}
-
-contract OwnableDelegateProxy {}
-
-/**
- * Used to delegate ownership of a contract to another address, to save on unneeded transactions to approve contract use for users
- */
-contract ProxyRegistry {
-    mapping(address => OwnableDelegateProxy) public proxies;
 }
 
 interface ITheNFTv1 {
