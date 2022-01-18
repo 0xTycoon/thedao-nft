@@ -206,13 +206,15 @@ contract TheNFTV2 {
         if (i + id > max) {                                            // if it goes over the max supply
             i = max -  id;                                             // cap it
         }
-        if (theDAO.transferFrom(msg.sender, address(this), oneDao*i)) { // take the DAO fee
-            v1.mint(i);
-            while (i > 0) {
-                _upgrade(id);
-                i--;
-                id++;
-            }
+        require(
+            theDAO.transferFrom(msg.sender, address(this), oneDao*i) == true,
+            "DAO tokens required"
+        );
+        v1.mint(i);
+        while (i > 0) {
+            _upgrade(id);
+            i--;
+            id++;
         }
     }
 
