@@ -1,6 +1,6 @@
 {
     "name": "TheNFT #549\/1799",
-    "description": "The SEC issued an 18-page investigative report about TheDAO. The report concluded that, DAO Tokens, a Digital Asset, were securities. Each page of the pdf has been converted into bitmaps, then broken up into 100 tiles.\n\nEach tile is minted as an NFT, with 1 original TheDAO token wrapped inside.\n\nThe NFT can be burned to unwrap 1 TheDAO token, which is a 16 decimal ERC20 token, created on Ethereum on Apr 30 2016.\n\nThis piece is from page 6, tile 50 (serial numbers start from 0)\n\nMore details: thedaonft.eth\n  ",
+    "description": "The SEC issued an 18-page investigative report about TheDAO. The report concluded that, DAO Tokens, a Digital Asset, were securities. Each page of the pdf has been converted into bitmaps, then broken up into 100 tiles.\n\nEach tile is minted as an NFT, with 1 original TheDAO token wrapped inside.\n\nThe NFT can be burned to unwrap 1 TheDAO token, which is a 16 decimal ERC20 token, created on Ethereum on Apr 30 2016.\n\nThis piece is from page 6, tile 50 (serial numbers start from 0)\n\nMore details: thedaonft.eth\n\n(This NFT was minted using the V1 contract and upgraded to V2)\n  ",
     "image": "ipfs:\/\/QmRX4tA5VtPPvetDdTx9SD9Wm1ty4zzeqHzq4y9guvUHAk\/5\/49.png",
     "attributes": []
 }

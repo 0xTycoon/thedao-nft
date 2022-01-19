@@ -6,7 +6,7 @@
  * Deploy the metadata in a separate IPFS CID
  */
 
-const IPFS_IMG_URL = "ipfs://QmVLhSdxh4rUqYVt1e2cGGbEC2Z5jTFR9uznLkQ78oS7uK/img/";
+const IPFS_IMG_URL = "ipfs://QmSRQExucEer7jJPFYRSSGUuj85ybX2eWxS7EfaJcA4Ssg/img/";
 
 $dir = __DIR__;
 
