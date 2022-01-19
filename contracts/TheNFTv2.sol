@@ -51,9 +51,9 @@ balanceOf(address(this)) is used to track how many tokens are yet to be minted
 * Tokens cannot be sent to address(this)
 * Tokens cannot be sent to 0x0
 
-### Version2
+### Version 2
 
-This upgrade fixes a bug with approvals.
+This upgrade fixes a bug with approvals, which was found & disclosed by @alphasoups
 
 An upgrade method is provided
 When minting, we will still use the old contract to mint,
@@ -63,6 +63,7 @@ As soon as it's minted, the NFT gets upgraded.
 
 import "./TheNFT.sol";
 //import "./safemath.sol"; // we don't need it
+//import "hardhat/console.sol";
 
 contract TheNFTV2 {
     ITheNFTv1 v1;                                              // points to v1 of TheNFT
@@ -176,17 +177,20 @@ contract TheNFTV2 {
         ret[4] = theDAO.balanceOf(address(this));        // amount of DAO held by this contract
         ret[5] = balanceOf(_user);                       // how many _user has
         ret[6] = theDAO.balanceOf(address(v1));          // amount of DAO held by v1
-        ret[7] = balanceOf(address(this));             // how many NFTs to be upgraded
+        ret[7] = balanceOf(address(this));               // how many NFTs to be upgraded
         ret[8] = balanceOf(DEAD_ADDRESS);
         return ret;
     }
 
     function upgrade(uint256[] calldata _ids) external {
         for (uint256 i; i < _ids.length; i++) {
-            if (v1.ownerOf(_ids[i]) == msg.sender) { // not upgraded
-                v1.transferFrom(msg.sender, address(this), _ids[i]); // transfer to here
-                _upgrade(_ids[i]);
-            }
+            /*
+             * The owner must be caller, and the NFT id must not exist in this contract
+             * (the only way for NFTs to exist in this contract is to go through an upgrade, minting from 0x0 address)
+             */
+            require ((v1.ownerOf(_ids[i]) == msg.sender && ownership[_ids[i]] == address(0)), "not upgradable id");
+            v1.transferFrom(msg.sender, address(this), _ids[i]);                     // transfer to here
+            _upgrade(_ids[i]);
         }
     }
 
@@ -333,11 +337,11 @@ contract TheNFTV2 {
     }
 
     function name() public pure returns (string memory) {
-        return "TheNFT Project";
+        return "TheDAO SEC Report NFT";
     }
 
     function symbol() public pure returns (string memory) {
-        return "TheNFT";
+        return "TheNFTv2";
     }
 
     /**
@@ -380,14 +384,11 @@ contract TheNFTV2 {
         address o = ownership[_tokenId];
         require (o == _from, "_from must be owner");
         address a = approval[_tokenId];
-        if (msg.sender == o || (a == msg.sender) || (approvalAll[o][msg.sender])) {
-            _transfer(_from, _to, _tokenId);
-            if (a != address(0)) {
-                approval[_tokenId] = address(0); // clear previous approval
-                emit Approval(msg.sender, address(0), _tokenId);
-            }
-        } else {
-            revert("not permitted");
+        require (o == msg.sender || (a == msg.sender) || (approvalAll[o][msg.sender]), "not permitted");
+        _transfer(_from, _to, _tokenId);
+        if (a != address(0)) {
+            approval[_tokenId] = address(0); // clear previous approval
+            emit Approval(msg.sender, address(0), _tokenId);
         }
         require(_checkOnERC721Received(_from, _to, _tokenId, _data), "ERC721: transfer to non ERC721Receiver implementer");
     }
@@ -406,14 +407,11 @@ contract TheNFTV2 {
         address o = ownership[_tokenId];
         require (o == _from, "_from must be owner");
         address a = approval[_tokenId];
-        if (msg.sender == o || (a == msg.sender) || (approvalAll[o][msg.sender])) {
-            _transfer(_from, _to, _tokenId);
-            if (a != address(0)) {
-                approval[_tokenId] = address(0); // clear previous approval
-                emit Approval(msg.sender, address(0), _tokenId);
-            }
-        } else {
-            revert("not permitted");
+        require (o == msg.sender || (a == msg.sender) || (approvalAll[o][msg.sender]), "not permitted");
+        _transfer(_from, _to, _tokenId);
+        if (a != address(0)) {
+            approval[_tokenId] = address(0); // clear previous approval
+            emit Approval(msg.sender, address(0), _tokenId);
         }
         require(_checkOnERC721Received(_from, _to, _tokenId, ""), "ERC721: transfer to non ERC721Receiver implementer");
     }
@@ -423,14 +421,11 @@ contract TheNFTV2 {
         address o = ownership[_tokenId];
         require (o == _from, "_from must be owner");
         address a = approval[_tokenId];
-        if (msg.sender == o || (a == msg.sender) || (approvalAll[o][msg.sender])) {
-            _transfer(_from, _to, _tokenId);
-            if (a != address(0)) {
-                approval[_tokenId] = address(0); // clear previous approval
-                emit Approval(msg.sender, address(0), _tokenId);
-            }
-        } else {
-            revert("not permitted");
+        require (o == msg.sender|| (a == msg.sender) || (approvalAll[o][msg.sender]), "not permitted");
+        _transfer(_from, _to, _tokenId);
+        if (a != address(0)) {
+            approval[_tokenId] = address(0); // clear previous approval
+            emit Approval(msg.sender, address(0), _tokenId);
         }
     }
 

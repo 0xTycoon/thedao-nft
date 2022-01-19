@@ -61,6 +61,7 @@ describe("TheDAONFTUpgrade", function () {
     });
 
     it("Should produce an ownership object", async function () {
+        return; // only used to check each nft
         let stats = await v1.getStats(tycoon_address);
         let minted = TOTAL_SUPPLY - (stats[2]);
         console.log("minted is: " + minted);
@@ -119,7 +120,8 @@ describe("TheDAONFTUpgrade", function () {
 
     it("Should burn and restore", async function () {
 
-        await expect(nft.connect(tycoon).burn(533)).to.emit(nft, "Burn").withArgs(tycoon_address, 533)
+        const id = 533;
+        await expect(nft.connect(tycoon).burn(id)).to.emit(nft, "Burn").withArgs(tycoon_address, id)
             .to.emit(theDao, "Transfer").withArgs(nft.address, tycoon_address, peth("1").div("100"));
 
         // check the state
@@ -136,12 +138,31 @@ describe("TheDAONFTUpgrade", function () {
         expect(await nft.setCurator(elizabeth.address)).to.emit(nft, 'OwnershipTransferred').withArgs(owner.address, elizabeth.address);
 
         // restore the NFT, elizabeth will get the fee, nft will store 1 dao
-        await expect(nft.connect(tycoon).restore(533)).to.emit(nft, "Restore").withArgs(tycoon_address, 533).to.emit(theDao, "Transfer").withArgs(tycoon_address, elizabeth.address, peth(RESTORE_FEE+"").div("100")).to.emit(theDao, "Transfer").withArgs(tycoon_address, nft.address, peth("1").div("100")).to.emit(nft, "Transfer").withArgs(DEAD_ADDRESS, tycoon_address, 533);
+        await expect(nft.connect(tycoon).restore(id))
+            .to.emit(nft, "Restore").withArgs(tycoon_address, id)
+            .to.emit(theDao, "Transfer").withArgs(tycoon_address, elizabeth.address, peth(RESTORE_FEE+"").div("100"))
+            .to.emit(theDao, "Transfer").withArgs(tycoon_address, nft.address, peth("1").div("100"))
+            .to.emit(nft, "Transfer").withArgs(DEAD_ADDRESS, tycoon_address, id);
 
         // check the state
         stats = await nft.getStats(tycoon_address);
         console.log(startingBal);
         //expect(feth(stats[0].mul("100"))).to.be.equal(startingBal - 5); // owner should have 5 DAO less
+
+    });
+
+    it("Should not allow a v1 nft to be upgraded twice", async function () {
+
+        // for some reason withArgs is bugged when using existing contract deployed on mainnet
+        await expect(v1.connect(tycoon).restore(533))
+            .to.emit(v1, "Restore") //.withArgs(tycoon_address, 533)
+            .to.emit(theDao, "Transfer") // .withArgs(tycoon_address, v1.address, peth("1").div("100"));
+
+        expect(await v1.connect(tycoon).ownerOf(533)).to.be.equal(tycoon_address);
+        // attempt to upgrade twice
+        await expect( nft.connect(tycoon).upgrade([533])).to.be.revertedWith("not upgradable id") // cannot do it
+        ;
+
 
     });
 
