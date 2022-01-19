@@ -227,7 +227,7 @@ contract TheNFTV2 {
     */
     function burn(uint256 id) external {
         require (msg.sender == ownership[id], "only owner can burn");
-        if (theDAO.transfer(msg.sender, oneDao)) { // send theDAO token back to sender
+        if (theDAO.transfer(msg.sender, oneDao)) {   // send theDAO token back to sender
             _transfer(msg.sender, DEAD_ADDRESS, id); // burn the NFT token
             emit Burn(msg.sender, id);
         }
