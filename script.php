@@ -23,7 +23,7 @@ $dir = __DIR__;
 `rm *.png`;
 // delete tiles, re-create dirs
 for ($i = 0; $i < 18; $i++) {
-    $path = $dir . "/docs/img/" . $i;
+    $path = $dir . "/tiles/" . $i;
     `rm -rf $path`;
     `mkdir $path`;
 }

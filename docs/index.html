@@ -206,7 +206,7 @@
                                 <p>Each individual NFT will require 1 DAO token to mint, which
                                     gets wrapped inside the NFT. The DAO token can be unwrapped at any time by burning the NFT. </p>
 
-                                <p>Now listed on OpenSea <a target="_blank" href="https://opensea.io/collection/thenft-project">V1 (Do not trade)</a> / <a target="_blank" href="https://opensea.io/collection/0x79a7d3559d73ea032120a69e59223d4375deb595">V2</a>
+                                <p>Now listed on OpenSea <a target="_blank" href="https://opensea.io/collection/thenft-project">V1 (Do not trade)</a> / <a target="_blank" href="https://opensea.io/collection/thedao-sec-report-nft">V2</a>
                                 </p>
                                 <p><button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#versionInfo">
                                     Version Information
@@ -222,8 +222,8 @@
                                         <div class="modal-body">
                                             <h5>Version information</h5>
                                             <p>Minting is now being done on the V2 contract. Under the hood, the V2 contract still uses the existing
-                                                deployment of V1, then automatically upgrades each piece to V2. Once upgraded, the NFT V1 is placed
-                                                in the "dead address" where it can still be restored as a V1 NFT, but restoration fees apply.
+                                                deployment of V1, then automatically upgrades each piece to V2. Once upgraded, the V1-NFT is placed
+                                                in the "dead address" where it can still be restored as a V1-NFT, but restoration fees apply.
                                             </p>
                                             <p>There is no time limit to upgrade, and your v1 NFTs will continue to exist forever and are safe in your wallet. The risk is only if the piece you own has been owned by somebody else.</p>
                                         </div>
@@ -251,18 +251,11 @@
                                         <label for="upgradelistTextarea1" class="form-label">Please enter your NFT numbers, 10 at a time, comma separated:</label>
                                         <textarea class="form-control" id="upgradelistTextarea1" rows="3"></textarea>
                                     </div>
-                                    <button type="submit" dsabled id="upgrade-btn" class="btn btn-success">Upgrade</button>
-
-
+                                    <button type="submit" id="upgrade-btn" class="btn btn-success">Upgrade</button>
                                 </form>
-
                             </div>
-
-
                         </div>
-
                     </div>
-
 
                 </div>
 
@@ -277,7 +270,7 @@
                     <h1 class="display-4">Minting finished</h1>
                     <p class="lead">
                         All 1800 NFTs have been minted and only available on the secondary market such as <a
-                            href="https://opensea.io/collection/thenft-project">OpenSea</a>. Verified Contract addresses:
+                            href="https://opensea.io/collection/thedao-sec-report-nft">OpenSea</a>. Verified Contract addresses:
                         <a class="contract" target="_blank"
                            href="https://etherscan.io/address/0xb3895280f69fc50a1fdf51099a4e577b867b63df">TheNFT V1</a> <a class="contract" target="_blank" href="https://etherscan.io/address/0x79a7D3559D73EA032120A69E59223d4375DEb595">thedaonft.eth V2</a>
                     </p>
@@ -336,7 +329,7 @@
                                 class="contract" target="_blank"
                                 href="https://etherscan.io/token/0x79a7D3559D73EA032120A69E59223d4375DEb595?a=0x000000000000000000000000000000000074eda0">0x74eda0</a>,
                         and the balance is: <span id="dead-balance">x</span>. (View on <a target="_blank"
-                                                                                          href="https://opensea.io/0x000000000000000000000000000000000074eda0">OpenSea</a>)
+                                                                                          href="https://opensea.io/0x000000000000000000000000000000000074eda0/thedao-sec-report-nft?search[sortBy]=LISTING_DATE">OpenSea</a>)
                     </p>
                     <p>You will need 5 DAO to restore. 1 DAO gets wrapped in the restored NFT, 4 DAO are taken as a
                         fee.</p>
@@ -2235,9 +2228,10 @@
 
             }
         });
-
-        $("#upgrade-btn").on('click', async function (e) {
+        let upgradeBtn = $("#upgrade-btn");
+        upgradeBtn.on('click', async function (e) {
             e.preventDefault();
+
             let regexp = /\d+/g;
             let str = $("#upgradelistTextarea1").val();
 
@@ -2271,8 +2265,9 @@
                     }
                 ).on("error", function (e) {
                     toastr.error(e.message, "Transaction failed");
+                    upgradeBtn.prop("disabled", false);
                 }).then(function (txReceipt) {
-
+                    upgradeBtn.prop("disabled", false);
                     console.log(txReceipt);
                     if (txReceipt.status) {
                         toastr.success('You upgraded your NFTs to v2<br>' +
@@ -2282,12 +2277,14 @@
                 });
             }
             if (!toBN("1").eq(state.stats.NFTV2IsApproved)) {
+                upgradeBtn.prop("disabled", true);
                 NFTv1.methods.setApprovalForAll(TheDAONFTAddressV2, true).send(
                     {
                         from: state.selectedAccount,
                         value: 0
                     }
                 ).on("error", function (e) {
+                    upgradeBtn.prop("disabled", false);
                     toastr.error(e.message, "Transaction failed");
                 }).then(function (txReceipt) {
                     console.log(txReceipt);
