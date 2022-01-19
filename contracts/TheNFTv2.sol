@@ -179,7 +179,9 @@ contract TheNFTV2 {
         ret[6] = theDAO.balanceOf(address(v1));            // amount of DAO held by v1
         ret[7] = balanceOf(address(this));                 // how many NFTs to be upgraded
         ret[8] = balanceOf(DEAD_ADDRESS);                  // how many v2 nfts burned
-        ret[9] = v1.isApprovedForAll(_user, address(this));// approved for upgrade?
+        if (v1.isApprovedForAll(_user, address(this))) {
+            ret[9] = 1;                                    // approved for upgrade?
+        }
         return ret;
     }
 
@@ -598,6 +600,7 @@ interface ITheNFTv1 {
     function balanceOf(address) external view returns(uint256);
     function ownerOf(uint256) external view returns(address);
     function transferFrom(address,address,uint256) external;
+    function isApprovedForAll(address, address) external view returns(bool) ;
     function burn(uint256) external;
     function mint(uint256) external;
 }
