@@ -132,7 +132,7 @@ contract TheNFTV2 {
         v1 = ITheNFTv1(_v1);
         max = _max;
         /* We will use v1 to mint */
-        balances[address(this)] = max;        // track how many haven't been upgraded
+        balances[address(this)] = max;          // track how many haven't been upgraded
         theDAO.approve(_v1, type(uint256).max); // allow v1 to spend our DAO
     }
 
@@ -189,14 +189,14 @@ contract TheNFTV2 {
              * (the only way for NFTs to exist in this contract is to go through an upgrade, minting from 0x0 address)
              */
             require ((v1.ownerOf(_ids[i]) == msg.sender && ownership[_ids[i]] == address(0)), "not upgradable id");
-            v1.transferFrom(msg.sender, address(this), _ids[i]);                     // transfer to here
-            _upgrade(_ids[i]);
+            v1.transferFrom(msg.sender, address(this), _ids[i]); // transfer to here
+            _upgrade(_ids[i]);                                   // burn * issue new nft
         }
     }
 
     function _upgrade(uint256 id) internal {
         v1.burn(id);                                    // take DAO token out
-        _transfer(address(this), msg.sender, id);     // issue new nft
+        _transfer(address(this), msg.sender, id);       // issue new nft
         emit Mint(msg.sender, id);
     }
 
