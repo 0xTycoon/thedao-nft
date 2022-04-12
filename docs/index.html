@@ -5,55 +5,69 @@
     <link rel="icon" type="image/png" href="img/thedao-icon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>TheDAO NFT</title>
+    <title>TheDAO SEC Report NFT - A DAO token wrapped in each NFT</title>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/toastr.min.css">
     <style>
         .navbar {
-            background-color: #5d5a57 !important;
+
+            background-color: #2e2e2e !important;
+        }
+
+        .jumbotron {
+            margin-top:2em!important;
+            margin-bottom:2em!important;
         }
 
         body {
             padding-top: 110px;
             padding-bottom: 3em;
-            background: rgb(234, 234, 235);
-            background: linear-gradient(90deg, rgb(74 80 86) 0%, rgb(186 186 186) 97%);
+            background: black;
+            /* background: rgb(234, 234, 235);
+             background: linear-gradient(90deg, rgb(74 80 86) 0%, rgb(186 186 186) 97%);
+
+             */
+
+         }
+        #main-container {
+            background: rgb(46 46 46);
+           /* background: linear-gradient(90deg, rgb(74 80 86) 0%, rgb(186 186 186) 97%);*/
         }
 
-        .modal-content {
-            background-color: black;;
-        }
+         .modal-content {
+             background-color: black;;
+         }
 
-        #presenting {
+         #presenting {
 
-            background: linear-gradient(90deg, rgb(66 66 66) 0%, rgb(0 54 152 / 19%) 97%);
-            color: #e6e6e6;
-            border-radius: 6px;
+             background: linear-gradient(90deg, rgb(17 17 17) 0%, rgb(69 70 70) 97%);
+             color: #e6e6e6;
+             border-radius: 6px;
 
 
 
-        }
+         }
 
-        #presenting h3 {
-            line-height: 1.3em;
-        }
+         #presenting h3 {
+             line-height: 1.3em;
+         }
 
-        #sub-title {
-            color: darkgrey;
-        }
+         #sub-title {
+             color: darkgrey;
+         }
 
-        #about {
-            margin-top: 0.3em;
-        }
+         #about {
+             margin-top: 0.3em;
+         }
 
-        #dapp, #minting-finished {
-            padding: 1em;
-            margin-top: 1.5em;
-            box-shadow: 1px 1px 15px 5px #8c8d8d;
-            border: 1px solid #bebebe;
-            border-radius: 25px;
-            background: rgb(255, 214, 214);
-            /* background: radial-gradient(circle, rgb(231, 255, 217) 0%, rgb(245, 245, 245) 100%); */
+         #dapp, #minting-finished {
+             padding: 1em;
+             margin-top: 1.5em;
+             box-shadow: 1px 1px 15px 5px #8c8d8d;
+             border: 1px solid #bebebe;
+             border-radius: 25px;
+             background: rgb(255, 214, 214);
+             /* background: radial-gradient(circle, rgb(231, 255, 217) 0%, rgb(245, 245, 245) 100%); */
             background: radial-gradient(circle at 10%, rgb(231, 255, 217), rgb(245, 245, 245));
             /*
                         animation-duration: 3s;
@@ -61,6 +75,7 @@
                         animation-iteration-count: infinite;
 
              */
+
         }
 
         /*
@@ -126,6 +141,15 @@
             min-width: 50px;
         }
 
+        .main-title {
+            background: black;
+            color: whitesmoke;
+            font-family: "Times New Roman", Times, serif;
+        }
+        .main-title img {
+            max-width: 350px;
+        }
+
         .contract {
             font-weight: bold;
             font-size: smaller;
@@ -149,6 +173,26 @@
             background: #483561;
             border-top-left-radius: 1em;
         }
+        #nft-total-minted {
+            background-color: #483561!important;
+            font-size: 1.1rem;
+        }
+
+        .domino {
+            top: 20px;
+            position: relative;
+            left: -20px;
+            max-width:150px;
+        }
+
+        .domino.d2 {
+            top: 40px;
+        }
+
+        .domino.d3 {
+            top: 80px;
+        }
+
 
 
     </style>
@@ -159,7 +203,7 @@
         <div class="container-fluid">
 
             <a class="navbar-brand" href="#">
-                <img src="img/thedao.png" alt="" width="111" height="50"> TheDao NFT
+                <img src="img/thedao.png" alt="" width="111" height="50" class="me-2"> thedaonft.eth
             </a>
 
 
@@ -190,12 +234,27 @@
 
 </header>
 <main>
-    <div class="container-fluid">
+    <div class="container-fluid main-title">
+
+        <div class="d-flex justify-content-center align-items-center p-5">
+            <div class="container text-center">
+                <h1 class="m-4 display-2">TheDAO SEC Report NFT</h1>
+                <div>
+                    <a href="https://opensea.io/collection/thedao-sec-report-nft" target="_blank"><img src="img/0/65.png"></a>
+                </div>
+
+                <h3 class="m-3"><em>Includes a vintage (2016) DAO token inside</em></h3>
+                <h5>One of the earliest examples of ERC20 tokens, wrapped inside an NFT, that can be unwrapped by burning the NFT.</h5>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="container-fluid" id="main-container">
         <div class="row">
             <div class="col-md-8 offset-md-2">
-                <h1 id="sub-title">TheDaoNFT<sup>.eth</sup>️</h1>
 
-                <div id="presenting">
+                <div id="presenting" class="pt-3">
                     <div class="row">
                         <div class="col-xl-6 ">
                             <div class="container-fluid p-3">
@@ -257,6 +316,63 @@
                         </div>
                     </div>
 
+                    <div class="row mt-5 pt-5 pb-5" style="background:black;">
+                        <div class="col-xl-6 d-flex justify-content-center align-items-center text-center" >
+                           <div class="container" >
+                            <h3 class="display-4">The Concept</h3>
+
+                            <p>The art is made by tokenizing the 18-page SEC investigative report on TheDAO, breaking up each page into 100 tiles. So, there are 1800 NFTs in total.
+                            </p>
+                             <p>A script was written to automate this process, and it can be regenerated by anybody running this script by feeding the original <a href="https://www.sec.gov/litigation/investreport/34-81207.pdf"> source pdf file</a> released by the SEC</p>
+
+                           </div>
+
+
+                        </div>
+                        <div class="col-xl-6 ">
+                            <img src="img/composite.png" style="width:100%">
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row mt-5">
+                        <div class="col-xl-6 ">
+                            <p>
+                                <img style="width:100%; border-radius: 25px; border: 1px solid black;" src="img/code.png">
+                            </p>
+                        </div>
+                        <div class="col-xl-6 d-flex justify-content-center align-items-center text-center">
+                            <div class="container">
+                                <h3 class="display-4">Code is Art</h3>
+                                <p>
+                                    Hand-written, custom contract, is a part of the artwork.
+                                </p>
+
+                                <p> The contract also embeds two sha256 hashes, one of the source pdf file, the other is a hash-sum of all the 1800 tiles.
+                                </p>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                    <div class="row mt-5">
+                        <div class="col-xl-6 ">
+                            <h3 class="display-4">Historical</h3>
+
+                            <p>TheDAO is an important piece of history in Ethereum's early history. It's also one of the earliest implementations of the ERC-20 standard. Although TheDAO suffered a catastropic hack that was resolved by a hard-fork, TheDAO smart contract still continues to live with its complete history intact (there was no rollback).
+                            </p>
+                        </div>
+                        <div class="col-xl-6 ">
+                            <img style="width:100%" src="img/eth.png">
+
+                        </div>
+
+
+
+                    </div>
                 </div>
 
                 <div id="dapp-not-connected" class="alert-primary">
@@ -376,48 +492,48 @@
                     <div class="container overflow-hidden">
 
                         <div class="row align-items-center gy-3">
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/0" target="_blank"><img class="tile" src="img/0/0.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/1" target="_blank"><img class="tile" src="img/0/1.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/2" target="_blank"><img class="tile" src="img/0/2.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/3" target="_blank"><img class="tile" src="img/0/3.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/4" target="_blank"><img class="tile" src="img/0/4.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/5" target="_blank"><img class="tile" src="img/0/5.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/6" target="_blank"><img class="tile" src="img/0/6.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/7" target="_blank"><img class="tile" src="img/0/7.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/8" target="_blank"><img class="tile" src="img/0/8.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/9" target="_blank"><img class="tile" src="img/0/9.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/10" target="_blank"><img class="tile" src="img/0/10.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/11" target="_blank"><img class="tile" src="img/0/11.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/0" target="_blank"><img class="tile" src="img/0/0.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/1" target="_blank"><img class="tile" src="img/0/1.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/2" target="_blank"><img class="tile" src="img/0/2.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/3" target="_blank"><img class="tile" src="img/0/3.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/4" target="_blank"><img class="tile" src="img/0/4.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/5" target="_blank"><img class="tile" src="img/0/5.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/6" target="_blank"><img class="tile" src="img/0/6.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/7" target="_blank"><img class="tile" src="img/0/7.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/8" target="_blank"><img class="tile" src="img/0/8.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/9" target="_blank"><img class="tile" src="img/0/9.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/10" target="_blank"><img class="tile" src="img/0/10.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/11" target="_blank"><img class="tile" src="img/0/11.png"></a></div>
 
                         </div>
                         <div class="row align-items-center gy-3">
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/12" target="_blank"><img class="tile" src="img/0/12.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/13" target="_blank"><img class="tile" src="img/0/13.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/14" target="_blank"><img class="tile" src="img/0/14.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/15" target="_blank"><img class="tile" src="img/0/15.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/16" target="_blank"><img class="tile" src="img/0/16.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/17" target="_blank"><img class="tile" src="img/0/17.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/18" target="_blank"><img class="tile" src="img/0/18.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/19" target="_blank"><img class="tile" src="img/0/19.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/20" target="_blank"><img class="tile" src="img/0/20.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/21" target="_blank"><img class="tile" src="img/0/21.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/22" target="_blank"><img class="tile" src="img/0/22.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/23" target="_blank"><img class="tile" src="img/0/23.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/12" target="_blank"><img class="tile" src="img/0/12.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/13" target="_blank"><img class="tile" src="img/0/13.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/14" target="_blank"><img class="tile" src="img/0/14.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/15" target="_blank"><img class="tile" src="img/0/15.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/16" target="_blank"><img class="tile" src="img/0/16.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/17" target="_blank"><img class="tile" src="img/0/17.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/18" target="_blank"><img class="tile" src="img/0/18.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/19" target="_blank"><img class="tile" src="img/0/19.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/20" target="_blank"><img class="tile" src="img/0/20.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/21" target="_blank"><img class="tile" src="img/0/21.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/22" target="_blank"><img class="tile" src="img/0/22.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/23" target="_blank"><img class="tile" src="img/0/23.png"></a></div>
                         </div>
 
                         <div class="row align-items-center gy-3">
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/24" target="_blank"><img class="tile" src="img/0/24.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/25" target="_blank"><img class="tile" src="img/0/25.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/26" target="_blank"><img class="tile" src="img/0/26.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/27" target="_blank"><img class="tile" src="img/0/27.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/28" target="_blank"><img class="tile" src="img/0/28.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/29" target="_blank"><img class="tile" src="img/0/29.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/30" target="_blank"><img class="tile" src="img/0/30.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/31" target="_blank"><img class="tile" src="img/0/31.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/32" target="_blank"><img class="tile" src="img/0/32.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/33" target="_blank"><img class="tile" src="img/0/33.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/34" target="_blank"><img class="tile" src="img/0/34.png"></a></div>
-                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x266830230bf10a58ca64b7347499fd361a011a02/35" target="_blank"><img class="tile" src="img/0/35.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/24" target="_blank"><img class="tile" src="img/0/24.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/25" target="_blank"><img class="tile" src="img/0/25.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/26" target="_blank"><img class="tile" src="img/0/26.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/27" target="_blank"><img class="tile" src="img/0/27.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/28" target="_blank"><img class="tile" src="img/0/28.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/29" target="_blank"><img class="tile" src="img/0/29.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/30" target="_blank"><img class="tile" src="img/0/30.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/31" target="_blank"><img class="tile" src="img/0/31.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/32" target="_blank"><img class="tile" src="img/0/32.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/33" target="_blank"><img class="tile" src="img/0/33.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/34" target="_blank"><img class="tile" src="img/0/34.png"></a></div>
+                            <div class="col col-md-2 col-lg-1 p-3"><a href="https://opensea.io/assets/0x79a7d3559d73ea032120a69e59223d4375deb595/35" target="_blank"><img class="tile" src="img/0/35.png"></a></div>
                         </div>
 
                     </div>
@@ -2496,8 +2612,8 @@
 
             let mouseXpercentage = Math.round(event.pageX / windowWidth * 100);
             let mouseYpercentage = Math.round(event.pageY / windowHeight * 100);
-
-            $('#dapp').css('background', 'radial-gradient(circle at ' + mouseXpercentage + '% ' + mouseYpercentage + '%, rgb(231, 255, 217) , rgb(245, 245, 245))');
+//
+            $('#dapp').css('background', 'radial-gradient(circle at ' + mouseXpercentage + '% ' + mouseYpercentage + '%, rgb(233 235 233), rgb(239 255 244))');
         });
 
 
