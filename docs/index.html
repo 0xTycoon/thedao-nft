@@ -390,11 +390,12 @@
                     <div class="row mt-5">
                         <div class="col-xl-6 d-flex justify-content-center align-items-center text-center">
                             <div class="container">
-                                <h3 class="display-4">Historical</h3>
+                                <h3 class="display-4">Preserving History</h3>
 
-                                <p>TheDAO was an important event in Ethereum's early history. It's also one of the earliest implementations of the ERC-20 standard. Although TheDAO suffered a catastrophic hack that was resolved by a hard-fork, TheDAO smart contract still <a href="https://thedaotoken.eth.limo">continues to live</a> with its complete history intact (there was no rollback).
+                                <p>TheDAO was an important event in Ethereum's early history. It's also one of the earliest implementations of the ERC-20 standard. Although TheDAO suffered a catastrophic hack that was resolved by a hard-fork, TheDAO smart contract still <a href="https://thedaotoken.eth.limo">continues to live</a> with its complete history intact (there was no rollback, and no change to TheDAO's code).
                                 </p>
-                                <p>TheDAO is what made Ethereum stronger, because it demonstrated that it's possible for a decentralized project to coordinate against an existential threat. It also introduced thousands of people to the power of smart contracts for the very first time, and arguably influenced the subsequent explosion of ICOs and DAOs that followed.</p>
+                                <p>Being an abandoned ERC20 project, TheDAO tokens have been removed from most token lists and are not compatible with many wallets and dapps. This issue is only a UI problem, made worse by the fact that the contract is missing the 'symbol' and 'units' info. (These are marked as optional in the ERC20 standard, but nowadays, every ERC20 contract has these. Some wallets and dapps will even crash because they expect these fields.) </p>
+                                <p>So, by wrapping a DAO token inside a more compatible standard such as ERC721, we are able to side-step these errors, and have TheDAO tokens displayed in our wallets again!</p>
                                 <p>"TheNFT" is probably the first ever smart contract that was written to specifically interact with TheDAO tokens since 2016.</p>
                                 <p>No matter what happens on the Ethereum network, TheDAO will always continue to live.</p>
                             </div>
@@ -404,10 +405,29 @@
                             <img style="width:100%" src="img/eth.png">
 
                         </div>
+                    </div>
 
+                    <div class="row mt-5">
+                        <div class="col-xl-6  d-flex justify-content-center align-items-center text-center">
+                            <p style="font-size: 10em;image-rendering: pixelated;text-align: center">🏗</p>️
 
+                        </div>
+                        <div class="col-xl-6 d-flex justify-content-center align-items-center text-center">
+                            <div class="container">
+                                <h3 class="display-4">The Project</h3>
+
+                                <p>This project was created by <a href="https://github.com/0xTycoon/">0xTycoon</a>. After he created the very first web3 UI for processing TheDAO token refunds, he became inspired to further explore the vintage TheDAO tokens in his projects.
+                                </p>
+                                <p>After completing this project, 0xTycoon handed over both this project and "thedaonft.eth" ENS names to the <a href="0x921DCc4ba6872B4736eB1A22351E2a8Ce671C3E2">"TheDAO Museum" multisig</a>.</p>
+                                <p>It is 0xTycoon's wish that no royalties are ever to be collected from trading the NFTs. Also,
+                                it is not an investment. This project, for all intents and purposes, has been completed, and presented as a completed art project.</p>
+                            </div>
+
+                        </div>
 
                     </div>
+
+
                 </div>
 
                 <div id="dapp-not-connected" class="alert-primary">
@@ -487,7 +507,7 @@
                     <div class="row">
 
                         <div class="col">
-                            <h3>Burn your V2 NFT</h3>
+                            <h3>Burn your NFT</h3>
                             <form id="burn-form">
                                 <div class="mb-3">
                                     <label for="burn-label" class="form-label">NFT number</label>
@@ -501,7 +521,7 @@
                             </form>
                         </div>
                         <div class="col">
-                            <h3>Restore a V2 NFT</h3>
+                            <h3>Restore a NFT</h3>
                             <form id="restore-form">
                                 <div class="mb-3">
                                     <label for="exampleInputRestore" class="form-label">NFT number</label>
