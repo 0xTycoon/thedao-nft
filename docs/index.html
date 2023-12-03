@@ -2191,7 +2191,12 @@
         state.selectedAccount = accounts[0];
         web3.eth.defaultAccount = state.selectedAccount;
         console.log("selected account" + state.selectedAccount);
-        state.networkID = await web3.eth.net.getId();
+        try {
+            state.networkID = await web3.eth.net.getId();
+        } catch(e) {
+            console.log(e);
+        }
+
 
         if (blockHeader) {
             state.bloom = blockHeader.logsBloom;
