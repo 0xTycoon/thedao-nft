@@ -78,7 +78,8 @@ import "./TheNFT.sol";
 //import "hardhat/console.sol";
 
 contract TheNFTV3 {
-    ITheNFTv1 v1;                                              // points to v1 of TheNFT
+    ITheNFT v1;                                              // points to v1 of TheNFT
+    ITheNFT v2;                                              // points to v2 of TheNFT
     /**
     * @dev PNG_SHA_256_HASH is a sha256 hash-sum of all 1800 bitmap tiles saved in the PNG format
     * (the final hash)
@@ -135,13 +136,15 @@ contract TheNFTV3 {
     * @param _v1 address of old version
     */
     constructor(
-        address _theDAO,
-        uint256 _max,
-        address _v1
+        address _theDAO, // 0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413
+        uint256 _max,    // 1800
+        address _v1,     // 0x266830230bf10A58cA64B7347499FD361a011a02
+        address _v2      // 0x79a7D3559D73EA032120A69E59223d4375DEb595
     ) {
         curator = msg.sender;
         theDAO = IERC20(_theDAO);
-        v1 = ITheNFTv1(_v1);
+        v1 = ITheNFT(_v1);
+        v2 = ITheNFT(_v2);
         max = _max;
         /* We will use v1 to mint */
         balances[address(this)] = max;          // track how many haven't been upgraded
@@ -181,7 +184,7 @@ contract TheNFTV3 {
     * @return uint256[10] the stats
     */
     function getStats(address _user) external view returns(uint256[] memory) {
-        uint[] memory ret = new uint[](10);
+        uint[] memory ret = new uint[](13);
         ret[0] = theDAO.balanceOf(_user);                  // amount of TheDAO tokens owned by _user
         ret[1] = theDAO.allowance(_user, address(this));   // amount of DAO this contract is approved to spend
         ret[2] = v1.balanceOf(address(v1));                // how many NFTs to be minted
@@ -192,25 +195,37 @@ contract TheNFTV3 {
         ret[7] = balanceOf(address(this));                 // how many NFTs to be upgraded
         ret[8] = balanceOf(DEAD_ADDRESS);                  // how many v2 nfts burned
         if (v1.isApprovedForAll(_user, address(this))) {
-            ret[9] = 1;                                    // approved for upgrade?
+            ret[9] = 1;                                    // approved for upgrade? v1 => v3
+        }
+        ret[10] = v2.balanceOf(address(v2));
+        ret[11] = v2.balanceOf(DEAD_ADDRESS);
+        if (v2.isApprovedForAll(_user, address(this))) {
+            ret[12] = 1;                                    // approved for upgrade v2 => v3?
         }
         return ret;
     }
 
-    function upgrade(uint256[] calldata _ids) external {
+    /**
+    * We assume that nobody will upgrade a NFT that has been restored, since
+    * it costs someone x4 to restore.
+    */
+    function upgrade(address _old, uint256[] calldata _ids) external {
+        ITheNFT old = ITheNFT(_old);
+        require (_old == address(v1) || _old == address(v2), "unknown address");
         for (uint256 i; i < _ids.length; i++) {
             /*
              * The owner must be caller, and the NFT id must not exist in this contract
              * (the only way for NFTs to exist in this contract is to go through an upgrade, minting from 0x0 address)
+             * it's assumed the nft will never be owned by 0x0 unless it wasn't minted yet
              */
-            require ((v1.ownerOf(_ids[i]) == msg.sender && ownership[_ids[i]] == address(0)), "not upgradable id");
-            v1.transferFrom(msg.sender, address(this), _ids[i]); // transfer to here
-            _upgrade(_ids[i]);                                   // burn * issue new nft
+            require ((old.ownerOf(_ids[i]) == msg.sender && ownership[_ids[i]] == address(0)), "not upgradable id");
+            old.transferFrom(msg.sender, address(this), _ids[i]); // transfer to here
+            //old.burn(_ids[i]);                                  // won't work after TheDAO tokens been drained
+            _mint(_ids[i]);       // issue new nft
         }
     }
 
-    function _upgrade(uint256 id) internal {
-        v1.burn(id);                                    // take DAO token out
+    function _mint(uint256 id) internal {
         _transfer(address(this), msg.sender, id);       // issue new nft
         emit Mint(msg.sender, id);
     }
@@ -219,7 +234,7 @@ contract TheNFTV3 {
     * @dev mint mints a token. Requires 1 DAO per NFT to mint
     */
     function mint(uint256 i) external {
-        uint256 id = max - v1.balanceOf(address(v1));                    // id is the next assigned id
+        uint256 id = max - v1.balanceOf(address(v1));                   // id is the next assigned id
         require(id < max, "minting finished");
         require (i > 0 && i <= 100, "must be between 1 and 100");
         if (i + id > max) {                                            // if it goes over the max supply
@@ -231,7 +246,8 @@ contract TheNFTV3 {
         );
         v1.mint(i);
         while (i > 0) {
-            _upgrade(id);
+            v1.burn(id);                                    // take DAO token out
+            _mint(id);
             i--;
             id++;
         }
@@ -243,7 +259,7 @@ contract TheNFTV3 {
     function burn(uint256 id) external {
         require (msg.sender == ownership[id], "only owner can burn");
         if (theDAO.transfer(msg.sender, oneDao)) {   // send theDAO token back to sender
-            // todo did not clear approval, approval[id] = address(0); // clear previous approval
+            approval[id] = address(0);               // clear previous approval
             _transfer(msg.sender, DEAD_ADDRESS, id); // burn the NFT token
             emit Burn(msg.sender, id);
         }
@@ -338,10 +354,11 @@ contract TheNFTV3 {
     /// @return The token identifier for the `_index`th NFT assigned to `_owner`,
     ///   (sort order not specified)
     function tokenOfOwnerByIndex(address  _owner , uint256 _index) external view returns (uint256) {
-        require (_index < max, "index out of range");
-        require (_owner != address(0), "address invalid");
-        require (ownership[_index] != address(0), "token not assigned");
-        return _index;
+        require(_index < balances[_owner], "index out of range");
+        require(_owner != address(0), "invalid _owner");
+        uint256 id = ownedList[_owner][_index];
+        require(ownership[id] != address(0), "token at _index not found");
+        return id;
     }
 
     /**
@@ -357,7 +374,7 @@ contract TheNFTV3 {
     }
 
     function symbol() public pure returns (string memory) {
-        return "TheNFTv2";
+        return "TheNFTv3";
     }
 
     /**
@@ -519,14 +536,13 @@ contract TheNFTV3 {
     * @param _tokenId the token index
     */
     function _transfer(address _from, address _to, uint256 _tokenId) internal {
-        balances[_to]++;
-        balances[_from]--;
-        ownership[_tokenId] = _to;
         if (_from != address(0)) { // not mint?
             _removeEnumeration(_from, _tokenId);
         }
+        balances[_to]++;
+        balances[_from]--;
+        ownership[_tokenId] = _to;
         _addEnumeration(_to, _tokenId);
-
         emit Transfer(_from, _to, _tokenId);
     }
 
@@ -640,7 +656,7 @@ contract TheNFTV3 {
     }
 }
 
-interface ITheNFTv1 {
+interface ITheNFT {
     function balanceOf(address) external view returns(uint256);
     function ownerOf(uint256) external view returns(address);
     function transferFrom(address,address,uint256) external;
