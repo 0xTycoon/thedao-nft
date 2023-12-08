@@ -12,15 +12,16 @@ pragma solidity ^0.8.11;
  #+#     #+#    #+# #+#        #+#   #+#+# #+#            #+#
 ###     ###    ### ########## ###    #### ###            ###
 
-TheNFTv2 - TheDAO NFT
+TheNFTv3 - TheDAO NFT
 thedaonft.eth
 https://github.com/0xTycoon/thedao-nft
 
-On the 25th of July, 2017, The Securities and Exchange Commission (SEC) released an 18 page report about their
-investigation in to TheDAO. The report concluded that TheDAO tokens are securities.
+On the 25th of July, 2017, The Securities and Exchange Commission (SEC)
+released an 18 page report about their investigation in to TheDAO.
+The report concluded that TheDAO tokens are securities.
 
-The following project converts each page in to an image, then shreds the images into strips. These strips can be then
-minted into NFTs
+The following project converts each page in to an image, then shreds the images
+into strips. These strips can be then minted into NFTs
 
 RULES
 
@@ -67,9 +68,9 @@ A blackhat hacker discovered that the burn function didn't clear the approval
 after transfer to the burn address, and drained all DAO tokens from both
 contracts.
 
-For this version, a snapshot was taken & new NFTs were airdropped to everyone.
+The hack has been tested to be fixed in the explot.js test.
 
-This version also fixes indexing.
+This version also fixes indexing, and adds a new upgradeAndBurn function.
 
 */
 
@@ -212,43 +213,58 @@ contract TheNFTV3 {
     function upgrade(address _old, uint256[] calldata _ids) external {
         ITheNFT old = ITheNFT(_old);
         require (_old == address(v1) || _old == address(v2), "unknown address");
+        _upgrade(old, _ids);
+    }
+
+    function upgradeAndBurn(address _old, uint256[] calldata _ids) external {
+        ITheNFT old = ITheNFT(_old);
+        require (_old == address(v1) || _old == address(v2), "unknown address");
+        if (_upgrade(old, _ids)) {
+            for (uint256 i; i < _ids.length; i++) {
+                _burn(_ids[i], msg.sender);
+            }
+        }
+    }
+
+    function _upgrade(ITheNFT _old, uint256[] calldata _ids) internal returns (bool) {
         for (uint256 i; i < _ids.length; i++) {
             /*
              * The owner must be caller, and the NFT id must not exist in this contract
              * (the only way for NFTs to exist in this contract is to go through an upgrade, minting from 0x0 address)
              * it's assumed the nft will never be owned by 0x0 unless it wasn't minted yet
              */
-            require ((old.ownerOf(_ids[i]) == msg.sender && ownership[_ids[i]] == address(0)), "not upgradable id");
-            old.transferFrom(msg.sender, address(this), _ids[i]); // transfer to here
+            require ((_old.ownerOf(_ids[i]) == msg.sender && ownership[_ids[i]] == address(0)), "not upgradable id");
+            _old.transferFrom(msg.sender, address(this), _ids[i]); // transfer to here
             //old.burn(_ids[i]);                                  // won't work after TheDAO tokens been drained
-            _mint(_ids[i]);       // issue new nft
+            _mint(_ids[i]);                                       // issue new nft
         }
+        return true;
     }
 
-    function _mint(uint256 id) internal {
-        _transfer(address(this), msg.sender, id);       // issue new nft
-        emit Mint(msg.sender, id);
+    function _mint(uint256 _id) internal {
+        _transfer(address(this), msg.sender, _id);       // issue new nft
+        emit Mint(msg.sender, _id);
     }
 
     /**
     * @dev mint mints a token. Requires 1 DAO per NFT to mint
     */
-    function mint(uint256 i) external {
+    function mint(uint256 _i) external {
         uint256 id = max - v1.balanceOf(address(v1));                   // id is the next assigned id
         require(id < max, "minting finished");
-        require (i > 0 && i <= 100, "must be between 1 and 100");
-        if (i + id > max) {                                            // if it goes over the max supply
-            i = max -  id;                                             // cap it
+        require (_i > 0 && _i <= 100, "must be between 1 and 100");
+        if (_i + id > max) {                                            // if it goes over the max supply
+            _i = max -  id;                                             // cap it
         }
         require(
-            theDAO.transferFrom(msg.sender, address(this), oneDao*i) == true,
+            theDAO.transferFrom(msg.sender, address(this), oneDao* _i) == true,
             "DAO tokens required"
         );
-        v1.mint(i);
-        while (i > 0) {
-            v1.burn(id);                                    // take DAO token out
+        v1.mint(_i);
+        while (_i > 0) {
+            v1.burn(id);                                                // take DAO token out
             _mint(id);
-            i--;
+            _i--;
             id++;
         }
     }
@@ -256,24 +272,28 @@ contract TheNFTV3 {
     /**
     * @dev burn gives 1 DAO back to the owner
     */
-    function burn(uint256 id) external {
-        require (msg.sender == ownership[id], "only owner can burn");
-        if (theDAO.transfer(msg.sender, oneDao)) {   // send theDAO token back to sender
-            approval[id] = address(0);               // clear previous approval
-            _transfer(msg.sender, DEAD_ADDRESS, id); // burn the NFT token
-            emit Burn(msg.sender, id);
+    function burn(uint256 _id) external {
+        require (msg.sender == ownership[_id], "only owner can burn");
+        _burn(_id, msg.sender);
+    }
+
+    function _burn(uint256 _id, address _burnee) internal {
+        if (theDAO.transfer(_burnee, oneDao)) {   // send theDAO token back to sender
+            approval[_id] = address(0);           // clear previous approval
+            _transfer(_burnee, DEAD_ADDRESS, _id);// burn the NFT token
+            emit Burn(_burnee, _id);
         }
     }
 
     /**
     * To restore, there will be a 4 DAO fee, so 5 DAO in total to restore
     */
-    function restore(uint256 id) external {
-        require(DEAD_ADDRESS == ownership[id], "must be dead");
+    function restore(uint256 _id) external {
+        require(DEAD_ADDRESS == ownership[_id], "must be dead");
         require(theDAO.transferFrom(msg.sender, address(this), oneDao), "DAO deposit insufficient");
         require(theDAO.transferFrom(msg.sender, curator, oneDao*fee), "DAO fee insufficient"); // Fee goes to the curator
-        _transfer(DEAD_ADDRESS, msg.sender, id); // send the NFT token to the new owner
-        emit Restore(msg.sender, id);
+        _transfer(DEAD_ADDRESS, msg.sender, _id); // send the NFT token to the new owner
+        emit Restore(msg.sender, _id);
     }
     /**
     * @dev setCurator sets the curator address
@@ -299,10 +319,10 @@ contract TheNFTV3 {
      * @dev Transfers ownership of the contract to a new account (`newOwner`).
      * Internal function without access restriction.
      */
-    function _transferOwnership(address newOwner) internal virtual {
+    function _transferOwnership(address _newOwner) internal virtual {
         address oldOwner = curator;
-        curator = newOwner;
-        emit OwnershipTransferred(oldOwner, newOwner);
+        curator = _newOwner;
+        emit OwnershipTransferred(oldOwner, _newOwner);
     }
 
     /**
@@ -565,16 +585,16 @@ contract TheNFTV3 {
 
 
     function _removeEnumeration(address _from, uint256 _tokenId) internal {
-        uint256 height = balances[_from] - 1;      // last index
-        uint256 i = index[_tokenId];               // index
+        uint256 height = balances[_from] - 1; // last index
+        uint256 i = index[_tokenId];          // index
         if (i != height) {
             // If not last, move the last token to the slot of the token to be deleted
             uint256 lastTokenId = ownedList[_from][height];
-            ownedList[_from][i] = lastTokenId;   // move the last token to the slot of the to-delete token
-            index[lastTokenId] = uint64(i); // update the moved token's index
+            ownedList[_from][i] = lastTokenId;// move the last token to the slot of the to-delete token
+            index[lastTokenId] = uint64(i);   // update the moved token's index
         }
-        index[_tokenId] = 0;                // delete from index
-        delete ownedList[_from][height];    // delete last slot
+        index[_tokenId] = 0;                  // delete from index
+        delete ownedList[_from][height];      // delete last slot
     }
 
     /**
