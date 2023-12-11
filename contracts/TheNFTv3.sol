@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // SYS 64738
 
-pragma solidity ^0.8.11;
+pragma solidity ^0.8.23;
 
 /*
   ::::::::::: :::    ::: :::::::::: ::::    ::: :::::::::: :::::::::::
@@ -91,6 +91,7 @@ contract TheNFTV3 {
     */
     string public constant PDF_SHA_256_HASH = "6c9ae041b9b9603da01d0aa4d912586c8d85b9fe1932c57f988d8bd0f9da3bc7";
     address private constant DEAD_ADDRESS = address(0x74eda0); // unwrapped NFTs go here
+    address private constant LOCK_ADDRESS = address(0x10ced);  // locked NFTs go here
     address public curator;                                    // the curator receives restoration fees
     string private assetURL;
     string private baseURI;
@@ -228,15 +229,16 @@ contract TheNFTV3 {
 
     function _upgrade(ITheNFT _old, uint256[] calldata _ids) internal returns (bool) {
         for (uint256 i; i < _ids.length; i++) {
+            uint256 id = _ids[i];
             /*
              * The owner must be caller, and the NFT id must not exist in this contract
              * (the only way for NFTs to exist in this contract is to go through an upgrade, minting from 0x0 address)
              * it's assumed the nft will never be owned by 0x0 unless it wasn't minted yet
              */
-            require ((_old.ownerOf(_ids[i]) == msg.sender && ownership[_ids[i]] == address(0)), "not upgradable id");
-            _old.transferFrom(msg.sender, address(this), _ids[i]); // transfer to here
+            require ((_old.ownerOf(id) == msg.sender && ownership[id] == address(0)), "not upgradable id");
+            _old.transferFrom(msg.sender, address(this), id); // transfer to here
             //old.burn(_ids[i]);                                  // won't work after TheDAO tokens been drained
-            _mint(_ids[i]);                                       // issue new nft
+            _mint(id);                                       // issue new nft
         }
         return true;
     }
@@ -286,7 +288,7 @@ contract TheNFTV3 {
     }
 
     /**
-    * To restore, there will be a 4 DAO fee, so 5 DAO in total to restore
+    * @dev To restore, there will be a 4 DAO fee, so 5 DAO in total to restore
     */
     function restore(uint256 _id) external {
         require(DEAD_ADDRESS == ownership[_id], "must be dead");
@@ -294,6 +296,40 @@ contract TheNFTV3 {
         require(theDAO.transferFrom(msg.sender, curator, oneDao*fee), "DAO fee insufficient"); // Fee goes to the curator
         _transfer(DEAD_ADDRESS, msg.sender, _id); // send the NFT token to the new owner
         emit Restore(msg.sender, _id);
+    }
+
+    /**
+    * @dev NFTs can be locked, and only unlocked if there is enough DAO tokens
+    *   in this contract.
+    */
+    function lock(uint256[] calldata _ids) external {
+        for (uint256 i; i < _ids.length; i++) {
+            uint256 id = _ids[i];
+            require (msg.sender == ownership[id], "only owner can lock");
+            approval[id] = address(0);              // clear previous approval
+            _transfer(msg.sender, LOCK_ADDRESS, id);// burn the NFT token
+        }
+    }
+
+    /**
+    * @dev NFTs can be unlocked if there is enough DAO tokens
+    *   in this contract.
+    */
+    function unlock(uint256[] calldata _ids) external {
+        unchecked {
+            require(
+                theDAO.balanceOf(address(this)) >= max - balanceOf(DEAD_ADDRESS),
+                "cannot unlock"
+            );
+            uint256 id;
+            for (uint256 i; i < _ids.length; i++) {
+                id = _ids[i];
+                require (LOCK_ADDRESS == ownership[id], "not locked");
+                _transfer(LOCK_ADDRESS, msg.sender, id);
+            }
+        }
+
+
     }
     /**
     * @dev setCurator sets the curator address
@@ -433,17 +469,9 @@ contract TheNFTV3 {
     * @param _tokenId The NFT to transfer
     */
     function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes memory _data) external regulated(_to) {
-        require (_tokenId < max, "index out of range");
-        address o = ownership[_tokenId];
-        require (o == _from, "_from must be owner");
-        address a = approval[_tokenId];
-        require (o == msg.sender || (a == msg.sender) || (approvalAll[o][msg.sender]), "not permitted");
+        _validateTransfer(_tokenId, _from);
         _transfer(_from, _to, _tokenId);
-        if (a != address(0)) {
-            approval[_tokenId] = address(0); // clear previous approval
-            emit Approval(msg.sender, address(0), _tokenId);
-        }
-        require(_checkOnERC721Received(_from, _to, _tokenId, _data), "ERC721: transfer to non ERC721Receiver implementer");
+        require(_checkOnERC721Received(_from, _to, _tokenId, _data), "Cannot transfer to an ERC721r");
     }
 
     /**
@@ -456,26 +484,22 @@ contract TheNFTV3 {
     * @param _tokenId The NFT to transfer
     */
     function safeTransferFrom(address _from, address _to, uint256 _tokenId) external regulated(_to) {
+        _validateTransfer(_tokenId, _from);
+        _transfer(_from, _to, _tokenId);
+        require(_checkOnERC721Received(_from, _to, _tokenId, ""), "Cannot transfer to an ERC721");
+    }
+
+    function transferFrom(address _from, address _to, uint256 _tokenId) external regulated(_to) {
+        _validateTransfer(_tokenId, _from);
+        _transfer(_from, _to, _tokenId);
+    }
+
+    function _validateTransfer(uint256 _tokenId, address _from) internal {
         require (_tokenId < max, "index out of range");
         address o = ownership[_tokenId];
         require (o == _from, "_from must be owner");
         address a = approval[_tokenId];
         require (o == msg.sender || (a == msg.sender) || (approvalAll[o][msg.sender]), "not permitted");
-        _transfer(_from, _to, _tokenId);
-        if (a != address(0)) {
-            approval[_tokenId] = address(0); // clear previous approval
-            emit Approval(msg.sender, address(0), _tokenId);
-        }
-        require(_checkOnERC721Received(_from, _to, _tokenId, ""), "ERC721: transfer to non ERC721Receiver implementer");
-    }
-
-    function transferFrom(address _from, address _to, uint256 _tokenId) external regulated(_to) {
-        require (_tokenId < max, "index out of range");
-        address o = ownership[_tokenId];
-        require (o == _from, "_from must be owner");
-        address a = approval[_tokenId];
-        require (o == msg.sender|| (a == msg.sender) || (approvalAll[o][msg.sender]), "not permitted");
-        _transfer(_from, _to, _tokenId);
         if (a != address(0)) {
             approval[_tokenId] = address(0); // clear previous approval
             emit Approval(msg.sender, address(0), _tokenId);
@@ -559,7 +583,7 @@ contract TheNFTV3 {
         if (_from != address(0)) { // not mint?
             _removeEnumeration(_from, _tokenId);
         }
-        balances[_to]++;
+        unchecked{balances[_to]++;}
         balances[_from]--;
         ownership[_tokenId] = _to;
         _addEnumeration(_to, _tokenId);
@@ -578,14 +602,20 @@ contract TheNFTV3 {
    * @dev called after an erc721 token transfer, after the counts have been updated
     */
     function _addEnumeration(address _to, uint256 _tokenId) internal {
-        uint256 last = balances[_to] - 1;  // the index of the last position
+        uint256 last;
+        unchecked {
+            last = balances[_to] - 1;  // the index of the last position
+        }
         ownedList[_to][last] = _tokenId;   // add a new entry
         index[_tokenId] = uint64(last);
     }
 
 
     function _removeEnumeration(address _from, uint256 _tokenId) internal {
-        uint256 height = balances[_from] - 1; // last index
+        uint256 height;
+        unchecked {
+            height = balances[_from] - 1; // last index
+        }
         uint256 i = index[_tokenId];          // index
         if (i != height) {
             // If not last, move the last token to the slot of the token to be deleted
@@ -620,7 +650,7 @@ contract TheNFTV3 {
                 return retval == IERC721Receiver.onERC721Received.selector;
             } catch (bytes memory reason) {
                 if (reason.length == 0) {
-                    revert("ERC721: transfer to non ERC721Receiver implementer");
+                    revert("Cannot transfer to an ERC721");
                 } else {
                     assembly {
                         revert(add(32, reason), mload(reason))
@@ -659,11 +689,13 @@ contract TheNFTV3 {
         // bytes and strings are big endian, so working on the buffer from right to left
         // this means we won't need to reverse the string later
         bytes memory buffer = new bytes(32);
-        while (value != 0) {
-            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
-            value /= 10;
-            digits -= 1;
-            count++;
+        unchecked {
+            while (value != 0) {
+                buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
+                value /= 10;
+                digits -= 1;
+                count++;
+            }
         }
         uint256 temp;
         assembly {
