@@ -337,8 +337,6 @@ contract TheNFTV3 {
                 _transfer(LOCK_ADDRESS, msg.sender, id);
             }
         }
-
-
     }
     /**
     * @dev setCurator sets the curator address
