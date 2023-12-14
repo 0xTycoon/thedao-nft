@@ -72,6 +72,15 @@ The hack has been tested to be fixed in the explot.js test.
 
 This version also fixes indexing, and adds a new upgradeAndBurn function.
 
+Details of the hack:
+
+TheNFTv1 & TheNFTv2
+TheNFTv1 exploit contract: https://etherscan.io/address/0x85301f7b943fd132c8dbc33f8fd9d77109a84f28
+TheNFTv1 EOA: https://etherscan.io/address/0x2f746bc70f72aaf3340b8bbfd254fd91a3996218
+
+TheNFTv0 exploit contract: https://etherscan.io/address/0x6CCec1571FCe2385Bd88c3e4671ABd01b331CF47
+TheNFTv0  EOA: 0xa54408E0084F6b536ae9Cbaad08895973d4A31d5
+
 */
 
 import "./TheNFT.sol";
@@ -237,8 +246,8 @@ contract TheNFTV3 {
              */
             require ((_old.ownerOf(id) == msg.sender && ownership[id] == address(0)), "not upgradable id");
             _old.transferFrom(msg.sender, address(this), id); // transfer to here
-            //old.burn(_ids[i]);                                  // won't work after TheDAO tokens been drained
-            _mint(id);                                       // issue new nft
+            //old.burn(_ids[i]);                              // won't work after TheDAO tokens been drained
+            _mint(id);                                        // issue new nft
         }
         return true;
     }
@@ -307,7 +316,7 @@ contract TheNFTV3 {
             uint256 id = _ids[i];
             require (msg.sender == ownership[id], "only owner can lock");
             approval[id] = address(0);              // clear previous approval
-            _transfer(msg.sender, LOCK_ADDRESS, id);// burn the NFT token
+            _transfer(msg.sender, LOCK_ADDRESS, id);// lock the NFT token
         }
     }
 
