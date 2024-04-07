@@ -38,7 +38,8 @@ The images are prepared with the help of a script, see script.php for the source
 The input for the script is TheDAO-SEC-34-81207.pdf with the sha256-hash of:
 6c9ae041b9b9603da01d0aa4d912586c8d85b9fe1932c57f988d8bd0f9da3bc7
 
-After the script completes creating all the tiles, the following sha256-hash will be printed:
+After the script completes creating all the tiles, the following sha256-hash
+will be printed:
 final hash: 3ed52e4afc9030f69004f163017c3ffba0b837d90061437328af87330dee9575
 
 ### Minting
@@ -60,7 +61,7 @@ An upgrade method is provided
 When minting, we will still use the old contract to mint,
 As soon as it's minted, the NFT gets upgraded.
 
-### Version 3
+### Version 3 (decided not to deploy, use redeemer.sol instead)
 
 The curse of TheDAO strikes again :-(
 This version fixes yet another bug with approvals.
@@ -101,7 +102,7 @@ contract TheNFTV3 {
     string public constant PDF_SHA_256_HASH = "6c9ae041b9b9603da01d0aa4d912586c8d85b9fe1932c57f988d8bd0f9da3bc7";
     address private constant DEAD_ADDRESS = address(0x74eda0); // unwrapped NFTs go here
     address private constant LOCK_ADDRESS = address(0x10ced);  // locked NFTs go here
-    address public curator;                                    // the curator receives restoration fees
+    address public curator;                                    // the curator receives restoration fees`
     string private assetURL;
     string private baseURI;
     uint256 private immutable max;                             // total supply (1800)
@@ -112,8 +113,8 @@ contract TheNFTV3 {
     uint256 private constant oneDao = 1e16;                    // 1 DAO = 16^10 wei or 0.01 ETH
 
     mapping(address => uint256) private balances;              // counts of ownership
-    mapping(uint256  => address) private ownership;
-    mapping(uint256  => address) private approval;
+    mapping(uint256 => address) private ownership;
+    mapping(uint256 => address) private approval;
     mapping(address => mapping(address => bool)) private approvalAll; // operator approvals
 
     /**
@@ -194,31 +195,43 @@ contract TheNFTV3 {
     * @param _user the address to return the report for
     * @return uint256[10] the stats
     */
-    function getStats(address _user) external view returns(uint256[] memory) {
-        uint[] memory ret = new uint[](13);
+    function getStats(address _user) external view returns(uint256[] memory, uint256[] memory) {
+        uint[] memory ret = new uint[](14);
+        uint256[] memory burned = new uint256[](10);       // last 10 burned
         ret[0] = theDAO.balanceOf(_user);                  // amount of TheDAO tokens owned by _user
         ret[1] = theDAO.allowance(_user, address(this));   // amount of DAO this contract is approved to spend
         ret[2] = v1.balanceOf(address(v1));                // how many NFTs to be minted
         ret[3] = v1.balanceOf(DEAD_ADDRESS);               // how many NFTs are burned (v1)
         ret[4] = theDAO.balanceOf(address(this));          // amount of DAO held by this contract
-        ret[5] = balanceOf(_user);                         // how many _user has
+        ret[5] = balanceOf(_user);                         // how many NFTs _user has
         ret[6] = theDAO.balanceOf(address(v1));            // amount of DAO held by v1
         ret[7] = balanceOf(address(this));                 // how many NFTs to be upgraded
-        ret[8] = balanceOf(DEAD_ADDRESS);                  // how many v2 nfts burned
+        ret[8] = balanceOf(DEAD_ADDRESS);                  // how many v3 nfts burned
         if (v1.isApprovedForAll(_user, address(this))) {
             ret[9] = 1;                                    // approved for upgrade? v1 => v3
         }
-        ret[10] = v2.balanceOf(address(v2));
-        ret[11] = v2.balanceOf(DEAD_ADDRESS);
+        ret[10] = v2.balanceOf(DEAD_ADDRESS);              // how many NFTs are burned (v2)
         if (v2.isApprovedForAll(_user, address(this))) {
-            ret[12] = 1;                                    // approved for upgrade v2 => v3?
+            ret[11] = 1;                                   // approved for upgrade v2 => v3?
         }
-        return ret;
+        ret[12] = v2.balanceOf(_user);                     // How many v2 NFTs user has
+        ret[13] = v1.balanceOf(_user);                     // How many v1 NFTs user has
+        uint256 n = ret[8];
+        if (n > 0) {
+            if (n > 10) {
+                n = 10;
+            }
+            for (uint256 i=0; i < n; i++) {
+                burned[i] = ownedList[DEAD_ADDRESS][i];     //tokenOfOwnerByIndex(DEAD_ADDRESS, i);
+            }
+        }
+        return (ret, burned);
     }
 
     /**
-    * We assume that nobody will upgrade a NFT that has been restored, since
-    * it costs someone x4 to restore.
+    * @dev upgrade will take either a v1 or v2 NFT and upgrade it. The old
+    * token will be locked in this contract, and a new token will be issued.
+    * A token is upgradable only if the id has not been assinged an owner
     */
     function upgrade(address _old, uint256[] calldata _ids) external {
         ITheNFT old = ITheNFT(_old);
@@ -281,7 +294,8 @@ contract TheNFTV3 {
     }
 
     /**
-    * @dev burn gives 1 DAO back to the owner
+    * @dev burn gives 1 DAO back to the owner. You won't be able to burn if
+    * there are not enough TheDao tokens in this contract
     */
     function burn(uint256 _id) external {
         require (msg.sender == ownership[_id], "only owner can burn");
@@ -309,7 +323,8 @@ contract TheNFTV3 {
 
     /**
     * @dev NFTs can be locked, and only unlocked if there is enough DAO tokens
-    *   in this contract.
+    *   in this contract. Careful, anyone can unlock and take it once the
+    *   condition is met.
     */
     function lock(uint256[] calldata _ids) external {
         for (uint256 i; i < _ids.length; i++) {
@@ -322,7 +337,7 @@ contract TheNFTV3 {
 
     /**
     * @dev NFTs can be unlocked if there is enough DAO tokens
-    *   in this contract.
+    *   in this contract. Anyone can unlock
     */
     function unlock(uint256[] calldata _ids) external {
         unchecked {
