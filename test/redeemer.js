@@ -124,13 +124,27 @@ describe("TheDAONFTRedeemer", function () {
         expect(await theDao.connect(tycoon).approve(redeemer.address, unlimited)).to.emit(theDao, "Approval");
         expect(await v1.connect(tycoon).mint(1)).to.emit(v1, "Transfer").withArgs("0x266830230bf10A58cA64B7347499FD361a011a02", "0xc43473fA66237e9AF3B2d886Ee1205b81B14b2C8", 534); // mint a v1
 
+        let bal1 = await theCig.balanceOf(redeemer.address);
         await v1.connect(tycoon).setApprovalForAll(redeemer.address, true);
         await redeemer.connect(tycoon).upgrade([534]);
-
+        let bal2 = await theCig.balanceOf(redeemer.address);
+        expect(bal1).to.be.equal(bal2); // we should have same balance after upgrade
         await theDao.connect(tycoon).transfer(v2.address, peth("1"));
         await v2.connect(tycoon).burn(532);
         await redeemer.connect(tycoon).restoreLegacy("0x79a7D3559D73EA032120A69E59223d4375DEb595", 532);
 
+    });
+
+    it("restore legacy", async function () {
+
+        expect(await theDao.connect(tycoon).approve(v1.address, unlimited)).to.emit(theDao, "Approval");
+        //redeemer.mint(1);
+        await expect( v1.connect(tycoon).mint(1)).to.emit(v1, "Mint").withArgs(tycoon_address, 535);
+        await expect(v1.connect(tycoon).burn(535)).to.emit(v1, "Burn");
+        let bal1 = await theDao.balanceOf(redeemer.address);
+        await redeemer.connect(tycoon).restoreLegacy(v1.address, 535);
+        let bal2 = await theDao.balanceOf(redeemer.address);
+        expect(bal1).to.be.not.equal(bal2);
     });
 
 

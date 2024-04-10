@@ -11,10 +11,10 @@ pragma solidity ^0.8.11;
  #+#     #+#    #+# #+#        #+#   #+#+# #+#            #+#
 ###     ###    ### ########## ###    #### ###            ###
 
-Burn & redeem TheNft tokens
+Burn & redeem TheNft tokens and other utilities
 
 This contract fixes the burning and redeeming of TheDao Tokens from TheNFT
-project
+project.
 */
 
 import "hardhat/console.sol";
@@ -41,10 +41,10 @@ contract Redeemer {
     address private curator;
 
     constructor(
-        address _v1,
-        address _v2,
-        address _theDao,
-        address _cig
+        address _v1,     // 0x266830230bf10a58ca64b7347499fd361a011a02
+        address _v2,     // 0x79a7D3559D73EA032120A69E59223d4375DEb595
+        address _theDao, // 0xbb9bc244d798123fde783fcc1c72d3bb8c189413
+        address _cig     // 0xCB56b52316041A62B6b5D0583DcE4A8AE7a3C629
     ) {
         v1 = ITheNFT(_v1);
         v2 = ITheNFT(_v2);
@@ -70,16 +70,16 @@ contract Redeemer {
             theDAO.transferFrom(msg.sender, address(this), oneDao* _i) == true,
             "DAO tokens required"
         );
-        if (_i + id > 1800) {                               // if it goes over the max supply
-            _i = 1800 -  id;                                // cap it
+        if (_i + id > 1800) {                              // if it goes over the max supply
+            _i = 1800 -  id;                               // cap it
         }
         if (_sendCig) {
-            cig.transfer(msg.sender, STIMULUS * _i);     // give cig reward
+            cig.transfer(msg.sender, STIMULUS * _i);       // give cig reward
         }
-        v2.mint(_i);                                        // mint on behalf of user
+        v2.mint(_i);                                       // mint on behalf of user
         while (_i > 0) {
-            _rescue(id);                                    // get the dao token out and store it here
-            v2.transferFrom(address(this), msg.sender, id); // send to minter
+            _rescue(id);                                   // get the dao token out and store it here
+            v2.transferFrom(address(this), msg.sender, id);// send to minter
             _i--;
             id++;
         }
@@ -90,6 +90,7 @@ contract Redeemer {
     * to rescue a DAO token
     */
     function upgrade(uint256[] calldata _ids) external {
+        theDAO.transfer(address(v1), oneDao * _ids.length);      // v1 was drained, so lend our DAO
         for (uint256 i; i < _ids.length; i++) {
             v1.transferFrom(msg.sender, address(this), _ids[i]); // transfer to here
         }
@@ -134,27 +135,39 @@ contract Redeemer {
         address owner = v2.ownerOf(_id);
         require(owner == address(this), "not in redeemer");
         require(isBurned[_id] == true, "not not burned");
-        v2.transferFrom(address(this), msg.sender, _id);        // restores old token, using hack
-        isBurned[_id] = false;
+        v2.transferFrom(address(this), msg.sender, _id);        // send token to new owner
+        isBurned[_id] = false;                                  // un-burn it
         emit Restore(msg.sender, _id);
     }
 
 
     /*
      * restoreLegacy restores v2 & v1 nft that have been burned by the legacy contracts
+     * In case of a v1, it will automatically upgrade to v2
+     * requires 5 DAO approval to work
+     * 4 DAO will go to the "curator" set in the v1 contract, and 1 will be
+     * kept by the redeemer as a deposit
     */
     function restoreLegacy(address _legacy, uint256 _id) external {
-        require(_legacy == address(v1) || _legacy == address(v2));
+        require(_legacy == address(v1) || _legacy == address(v2), "not legacy");
         ITheNFT l = ITheNFT(_legacy);
-        theDAO.transferFrom(msg.sender, address(this), oneDao * 4); // take 4 DAO
+        theDAO.transferFrom(
+            msg.sender,
+            address(this),
+            oneDao * 5                                    // 1 for deposit, 4 to curator
+        );
         l.restore(_id);
-        for (uint256 i=0; i < 4; i++) {
-            l.approve(address(this), _id);                    // approve to self
-            l.burn(_id);                                      // we get 1 DAO back
-            l.transferFrom(DEAD_ADDRESS, address(this), _id); // we can get the nft back due to a bug
+        l.approve(address(this), _id);                    // approve to self, to "steal" 1 DAO back
+        l.burn(_id);                                      // exploit, we get 1 DAO back
+        l.transferFrom(DEAD_ADDRESS, address(this), _id); // we can get the nft back due to a bug
+        if (_legacy == address(v1)) {
+            theDAO.transfer(address(v1), oneDao);         // v1 was drained, so lend our DAO
+            uint256[] memory i = new uint256[](1);
+            i[0] = _id;
+            v2.upgrade(i);                                // auto-upgrade to v2
+            _rescue(_id);                                 // get DAO out of v2
         }
-        l.transferFrom(address(this), msg.sender, _id);
-        theDAO.transfer(msg.sender, oneDao * 3);              // send back 3 dao, keeping 1
+        v2.transferFrom(address(this), msg.sender, _id);  // by now, it's a v2 nft. transfer to user
     }
 
     function getCig(uint256 _amount) external {
@@ -199,7 +212,7 @@ contract Redeemer {
 
         ret[13] = cig.balanceOf(address(this));          // how many cig we have
         if (v1.isApprovedForAll(_user, address(this))) {
-            ret[14] = 1;                                  // approved this contract for upgrade?
+            ret[14] = 1;                                 // approved this contract for upgrade?
         }
         return ret;
     }
