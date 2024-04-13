@@ -31,7 +31,7 @@ contract Redeemer {
     event Burn(address owner, uint256 tokenId);
     event Restore(address owner, uint256 tokenId);
 
-    address private constant DEAD_ADDRESS = address(0x74eda0); // unwrapped NFTs go here (old)
+    address private constant DEAD_ADDRESS = address(0x74eda0);   // unwrapped NFTs go here (old)
     address private constant DEAD_ADDRESS2 = address(0x74eda02); // unwrapped NFTs go here (redeemer)
     mapping(uint256 => bool) private isBurned;
 
@@ -115,7 +115,6 @@ contract Redeemer {
     * Burn burns a NFT and returns a DAO token. The NFT is placed in the redeemer
     * by calling burn() on v2.
     */
-
     function burn(uint256 _id) external {
         address owner = v2.ownerOf(_id);
         require(owner != address(this), "already burned");
@@ -129,7 +128,6 @@ contract Redeemer {
     /**
     * restore takes out a NFT from the redeemer
     */
-
     function restore(uint256 _id) external {
         theDAO.transferFrom(msg.sender, address(this), oneDao); // take 1 DAO
         address owner = v2.ownerOf(_id);
@@ -139,7 +137,6 @@ contract Redeemer {
         isBurned[_id] = false;                                  // un-burn it
         emit Restore(msg.sender, _id);
     }
-
 
     /*
      * restoreLegacy restores v2 & v1 nft that have been burned by the legacy contracts

@@ -456,7 +456,7 @@
                         All 1800 NFTs have been minted and only available on the secondary market such as <a
                             href="https://opensea.io/collection/thedao-sec-report-nft">OpenSea</a>. Verified Contract addresses:
                         <a class="contract" target="_blank"
-                           href="https://etherscan.io/address/0xb3895280f69fc50a1fdf51099a4e577b867b63df">TheNFT V1</a> <a class="contract" target="_blank" href="https://etherscan.io/address/0x79a7D3559D73EA032120A69E59223d4375DEb595">thedaonft.eth V2</a>
+                           href="https://etherscan.io/address/0xb3895280f69fc50a1fdf51099a4e577b867b63df">TheNFT V1</a> <a class="contract" target="_blank" href="https://etherscan.io/address/0x79a7D3559D73EA032120A69E59223d4375DEb595">thedaonft.eth V2</a> / <a class="contract" target="_blank" href="https://etherscan.io/address/tod-">Redeemer contract (todo)</a>
                     </p>
                 </div>
                 <div class="jumbotron d-none steel-gradient" id="dapp">
@@ -2047,7 +2047,7 @@
         "type": "event"
     }];
 
-    const RedeemerAddress = "0xab16A69A5a8c12C732e0DEFF4BE56A70bb64c926";
+    const RedeemerAddress = "0x24EcC5E6EaA700368B8FAC259d3fBD045f695A08";
     const RedeemerABI = [
         {
             "inputs": [
@@ -2112,6 +2112,19 @@
             ],
             "name": "Restore",
             "type": "event"
+        },
+        {
+            "inputs": [],
+            "name": "STIMULUS",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
         },
         {
             "inputs": [
@@ -2185,6 +2198,50 @@
                 }
             ],
             "name": "restore",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_legacy",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_id",
+                    "type": "uint256"
+                }
+            ],
+            "name": "restoreLegacy",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_a",
+                    "type": "address"
+                }
+            ],
+            "name": "setCurator",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_v",
+                    "type": "uint256"
+                }
+            ],
+            "name": "setStimulus",
             "outputs": [],
             "stateMutability": "nonpayable",
             "type": "function"
@@ -2272,12 +2329,10 @@
             NFTDeadBalanceV2 : toBN("0"),    // how many v2 nfts burned
             NFTV2IsApproved : toBN("0"),     // user approved v1 for upgrade via v2? 1 if true
             RedeemerDAOApproved : 0,         // amount of user's DAO redeemer is approved to spends
-            RedeemerNFTApproved: 0,          // has user approved v2 for redeemer?
+            RedeemerNFTV2Approved: 0,        // has user approved v2 for redeemer?
             DAOinRedeemer : 0,               // how much thedao tokens in redeemer,
-            CIGBal : 0,                      // how many cig we have
-            RedeemerUpgradeApproved : 0 //  approved redeemer contract for upgrade?
-
-
+            RedeemerCIGBal : 0,              // how many cig we have
+            RedeemerNFTV1Approved : 0        // v1 approved redeemer contract for upgrade?
 
         },
         bloom: ""
@@ -2415,7 +2470,7 @@
             state.bloom = blockHeader.logsBloom;
             state.balanceETH = await web3.eth.getBalance(state.selectedAccount);
             try {
-                let result = await NFT.methods.getStats(state.selectedAccount).call();
+                let result = await Redeemer.methods.getStats(state.selectedAccount).call();
                 state.stats.theDAOBalance = toBN(result[0]);
                 state.stats.theDAOAllowance = toBN(result[1]);
                 state.stats.NFTsToBeMintedV1 = toBN(result[2]);
@@ -2435,6 +2490,14 @@
                     if (a===true) {
                         state.stats.NFTV2IsApproved = toBN("1");
                     }
+                }
+                if (result.length === 15) {
+                    console.log("redeemer");
+                    state.stats.RedeemerDAOApproved = toBN(result[10]);
+                    state.stats.RedeemerNFTV2Approved = toBN(result[11]);
+                    state.stats.DAOinRedeemer = toBN(result[12]);
+                    state.stats.RedeemerCIGBal = toBN(result[13]);
+                    state.stats.RedeemerNFTV1Approved = toBN(result[14]);
                 }
 
             } catch (e) {
@@ -2651,7 +2714,7 @@
             }
             let doIt = async function() {
                 // do the upgrade:
-                NFT.methods.upgrade(ids).send(
+                Redeemer.methods.upgrade(ids).send(
                     {
                         from: state.selectedAccount,
                         value: 0
@@ -2669,9 +2732,9 @@
 
                 });
             }
-            if (!toBN("1").eq(state.stats.NFTV2IsApproved)) {
+            if (!toBN("1").eq(state.stats.RedeemerNFTV1Approved)) {
                 upgradeBtn.prop("disabled", true);
-                NFTv1.methods.setApprovalForAll(TheDAONFTAddressV2, true).send(
+                NFTv1.methods.setApprovalForAll(RedeemerAddress, true).send(
                     {
                         from: state.selectedAccount,
                         value: 0
