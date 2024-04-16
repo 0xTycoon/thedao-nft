@@ -129,13 +129,13 @@ describe("TheDAONFTRedeemer", function () {
         await redeemer.connect(tycoon).upgrade([534]);
         let bal2 = await theCig.balanceOf(redeemer.address);
         expect(bal1).to.be.equal(bal2); // we should have same balance after upgrade
-        await theDao.connect(tycoon).transfer(v2.address, peth("1"));
-        await v2.connect(tycoon).burn(532);
-        await redeemer.connect(tycoon).restoreLegacy("0x79a7D3559D73EA032120A69E59223d4375DEb595", 532);
-
     });
 
     it("restore legacy", async function () {
+
+        await theDao.connect(tycoon).transfer(v2.address, peth("1"));
+        await v2.connect(tycoon).burn(532);
+        await redeemer.connect(tycoon).restoreLegacy("0x79a7D3559D73EA032120A69E59223d4375DEb595", 532);
 
         expect(await theDao.connect(tycoon).approve(v1.address, unlimited)).to.emit(theDao, "Approval");
         //redeemer.mint(1);

@@ -33,12 +33,15 @@ contract Redeemer {
 
     address private constant DEAD_ADDRESS = address(0x74eda0);   // unwrapped NFTs go here (old)
     address private constant DEAD_ADDRESS2 = address(0x74eda02); // unwrapped NFTs go here (redeemer)
-    mapping(uint256 => bool) private isBurned;
 
     IERC20 private immutable cig;
     uint256 public STIMULUS = 15000 ether;
 
     address private curator;
+
+    uint64 private burnedCount;
+    mapping(uint64 => uint256) public burnedList; // track enumeration (0 => id1, 1 => id4, 2 => id2 ...)
+    mapping(uint256 => uint64) public index;      // sequential index in the burnedList of an nft
 
     constructor(
         address _v1,     // 0x266830230bf10a58ca64b7347499fd361a011a02
@@ -119,7 +122,7 @@ contract Redeemer {
         address owner = v2.ownerOf(_id);
         require(owner != address(this), "already burned");
         v2.transferFrom(owner, address(this), _id);// burns & clears approval
-        isBurned[_id] = true;                      // record the burn state
+        _addBurned(_id);
         theDAO.transfer(owner, oneDao);            // send 1 DAO back
         emit Burn(owner, _id);
     }
@@ -132,10 +135,54 @@ contract Redeemer {
         theDAO.transferFrom(msg.sender, address(this), oneDao); // take 1 DAO
         address owner = v2.ownerOf(_id);
         require(owner == address(this), "not in redeemer");
-        require(isBurned[_id] == true, "not not burned");
         v2.transferFrom(address(this), msg.sender, _id);        // send token to new owner
-        isBurned[_id] = false;                                  // un-burn it
+        _removeBurned(_id);
         emit Restore(msg.sender, _id);
+    }
+
+    /**
+    * _addBurned appends an item to the burnedList
+    */
+    function _addBurned(uint256 _id) private {
+        uint64 c = burnedCount;
+        burnedList[c] = _id;    // append
+        index[_id] = c;         // save the index.
+        burnedCount++;          // update balance
+    }
+
+    /**
+    * _removeBurned removes an item from the burned list
+    */
+    function _removeBurned(uint256 _id) private {
+        uint64 i = index[_id];                 // index of item to delete
+        uint64 last;
+        require (burnedCount > 0, "none burned");
+        require(burnedList[i] == _id, "invalid");
+        unchecked {
+            last = burnedCount - 1;            // last index
+        }
+        if (i != last) {
+            // If not last, move the last token to the slot of the token to be deleted
+            uint256 lastId = burnedList[last];
+            burnedList[i] = lastId;            // move the last token to the slot of the to-delete token
+            index[lastId] = uint64(i);         // update the moved token's index
+        }
+        index[_id] = 0;                        // delete from index
+        delete burnedList[last];               // delete last entry
+        burnedCount = last;                    // update balance
+    }
+
+    /*
+    * listBurned lists nfts that have been burned.
+    * offset: starting index
+    * size: length of result
+    */
+    function listBurned(uint64 offset, uint64 size) view external returns(uint256[] memory) {
+        uint[] memory ret = new uint256[](offset+size);
+        for (uint64 i=offset; i < offset+size; i++) {
+            ret[i] = burnedList[i];
+        }
+        return ret;
     }
 
     /*
@@ -188,7 +235,7 @@ contract Redeemer {
     * @return uint256[10] the stats
     */
     function getStats(address _user) external view returns(uint256[] memory) {
-        uint[] memory ret = new uint256[](15);
+        uint[] memory ret = new uint256[](16);
         ret[0] = theDAO.balanceOf(_user);                // amount of TheDAO tokens owned by _user
         ret[1] = theDAO.allowance(_user, address(v2));   // amount of DAO this contract is approved to spend
         ret[2] = v1.balanceOf(address(v1));              // how many NFTs left to be minted
@@ -211,6 +258,7 @@ contract Redeemer {
         if (v1.isApprovedForAll(_user, address(this))) {
             ret[14] = 1;                                 // approved this contract for upgrade?
         }
+        ret[15] = uint256(burnedCount);
         return ret;
     }
 
@@ -238,73 +286,5 @@ interface ITheNFT {
     function isApprovedForAll(address _owner, address _operator) external view returns (bool);
     function upgrade(uint256[] calldata _ids) external;
     function setApprovalForAll(address _operator, bool _approved) external;
-
 }
 
-contract CigTokenMock {
-
-    string public name = "Cigarettes";
-    string public symbol = "CIG";
-    uint8 public decimals = 18;
-    uint256 public totalSupply = 0;
-    mapping(address => uint256) public balanceOf;
-    mapping(address => mapping(address => uint256)) public allowance;
-
-    event Transfer(address indexed from, address indexed to, uint256 value);
-    event Approval(address indexed owner, address indexed spender, uint256 value);
-
-    address ceo;
-
-    constructor (address _ceo) {
-        ceo = _ceo;
-        balanceOf[_ceo] = balanceOf[_ceo] + 5 ether;
-        totalSupply = totalSupply + 5 ether;
-    }
-    function mint(address _to, uint256 _amount) public {
-        totalSupply = totalSupply + _amount;
-        balanceOf[_to] = balanceOf[_to] + _amount;
-        emit Transfer(address(0), _to, _amount);
-    }
-    function transfer(address _to, uint256 _value) public returns (bool) {
-        // require(_value <= balanceOf[msg.sender], "value exceeds balance"); // SafeMath already checks this
-        balanceOf[msg.sender] = balanceOf[msg.sender] - _value;
-        balanceOf[_to] = balanceOf[_to] + _value;
-        emit Transfer(msg.sender, _to, _value);
-        return true;
-    }
-
-    function transferFrom(
-        address _from,
-        address _to,
-        uint256 _value
-    )
-    public
-    returns (bool)
-    {
-        //require(_value <= balanceOf[_from], "value exceeds balance"); // SafeMath already checks this
-        require(_value <= allowance[_from][msg.sender], "not approved");
-        balanceOf[_from] = balanceOf[_from] - _value;
-        balanceOf[_to] = balanceOf[_to] + _value;
-        emit Transfer(_from, _to, _value);
-        return true;
-    }
-
-    function approve(address _spender, uint256 _value) public returns (bool) {
-        allowance[msg.sender][_spender] = _value;
-        emit Approval(msg.sender, _spender, _value);
-        return true;
-    }
-
-    function The_CEO() external view returns (address) {
-        return ceo;
-    }
-    function CEO_punk_index() external view returns (uint256) {
-        return 4513;
-    }
-    function taxBurnBlock() external view returns (uint256) {
-        return block.number - 5;
-    }
-    function CEO_price() external view returns (uint256) {
-        return 1000000 ether;
-    }
-}
