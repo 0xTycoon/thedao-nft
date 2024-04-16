@@ -508,15 +508,16 @@
                         You can burn a NFT from <a id="you-own-link" target="_blank" href="">your account</a>, and get 1
                         DAO back from the NFT. Restoring burned NFTs is possible too!
                     </p>
-                    <p>Burning is non-destructive, and a 'burned' NFT gets transferred special 'dead' address.
-                        Anybody can restore any NFT that is in the 'dead' address. There 'dead' address is <a
+                    <p>Burning is non-destructive, and you will get 1 DAO back.
+                        Anybody can restore the 'burned' NFT. There 'dead' address is <a
                                 class="contract" target="_blank"
                                 href="https://etherscan.io/token/0x79a7D3559D73EA032120A69E59223d4375DEb595?a=0x000000000000000000000000000000000074eda0">0x74eda0</a>,
                         and the balance is: <span id="dead-balance">x</span>. (View on <a target="_blank"
                                                                                           href="#" id="viewDead">OpenSea</a>)
                     </p>
-                    <p>You will need 5 DAO to restore. 1 DAO gets wrapped in the restored NFT, 4 DAO are taken as a
-                        fee.</p>
+                    <p>Restoring an NFT is free if the NFT was burned via the new Redeemer contract.
+                        Restoring older v1 and v2 NFTs is possible too, via the 'restoreLegacy' function, however, these require 5 DAO tokens each to restore. </p>
+                    <p></p>
                     <p>Note: Redeeming DAO tokens is facilitated by the new redeemer.sol contract. There are currently <span id="DAOTokensBalInV3">x</span> DAO tokens locked in this contract.</p>
                     <div class="row">
 
@@ -535,7 +536,7 @@
                             </form>
                         </div>
                         <div class="col">
-                            <h3>Restore a NFT</h3>
+                            <h3>Restore an NFT</h3>
                             <form id="restore-form">
                                 <div class="mb-3">
                                     <label for="exampleInputRestore" class="form-label">NFT number</label>
@@ -2047,7 +2048,7 @@
         "type": "event"
     }];
 
-    const RedeemerAddress = "0x24EcC5E6EaA700368B8FAC259d3fBD045f695A08";
+    const RedeemerAddress = "0x876939152C56362e17D508B9DEA77a3fDF9e4083";
     const RedeemerABI = [
         {
             "inputs": [
@@ -2142,6 +2143,25 @@
         {
             "inputs": [
                 {
+                    "internalType": "uint64",
+                    "name": "",
+                    "type": "uint64"
+                }
+            ],
+            "name": "burnedList",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
                     "internalType": "uint256",
                     "name": "_amount",
                     "type": "uint256"
@@ -2161,6 +2181,49 @@
                 }
             ],
             "name": "getStats",
+            "outputs": [
+                {
+                    "internalType": "uint256[]",
+                    "name": "",
+                    "type": "uint256[]"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "name": "index",
+            "outputs": [
+                {
+                    "internalType": "uint64",
+                    "name": "",
+                    "type": "uint64"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint64",
+                    "name": "offset",
+                    "type": "uint64"
+                },
+                {
+                    "internalType": "uint64",
+                    "name": "size",
+                    "type": "uint64"
+                }
+            ],
+            "name": "listBurned",
             "outputs": [
                 {
                     "internalType": "uint256[]",
@@ -2328,7 +2391,7 @@
             NFTsToBeUpgraded : toBN("0"),    // how many NFTs to be upgraded
             NFTDeadBalanceV2 : toBN("0"),    // how many v2 nfts burned
             NFTV2IsApproved : toBN("0"),     // user approved v1 for upgrade via v2? 1 if true
-            RedeemerDAOApproved : 0,         // amount of user's DAO redeemer is approved to spends
+            RedeemerDAOAllowance : 0,        // amount of user's DAO redeemer is approved to spends
             RedeemerNFTV2Approved: 0,        // has user approved v2 for redeemer?
             DAOinRedeemer : 0,               // how much thedao tokens in redeemer,
             RedeemerCIGBal : 0,              // how many cig we have
@@ -2493,7 +2556,7 @@
                 }
                 if (result.length === 15) {
                     console.log("redeemer");
-                    state.stats.RedeemerDAOApproved = toBN(result[10]);
+                    state.stats.RedeemerDAOAllowance = toBN(result[10]);
                     state.stats.RedeemerNFTV2Approved = toBN(result[11]);
                     state.stats.DAOinRedeemer = toBN(result[12]);
                     state.stats.RedeemerCIGBal = toBN(result[13]);
@@ -2566,8 +2629,8 @@
                 //;
                 $("#thedao-balance").html(new bigDecimal(web3.utils.fromWei(tokens).toString()).round(2, bigDecimal.RoundingModes.DOWN).getValue()); // round down because we need at least 1
 
-                // show the approve or mint button?
-                if (state.stats.theDAOAllowance.lt(state.stats.theDAOBalance)) {
+                // show the "approve" or "mint" button?
+                if (state.stats.RedeemerDAOAllowance.lt(state.stats.theDAOBalance)) {
                     // not approved
                     $("#mint-btn").hide();
                     $("#approve-btn").show();
@@ -2599,7 +2662,7 @@
 
             $("#you-own-link").attr("href", "https://opensea.io/accounts/" + state.selectedAccount);
 
-            if (state.stats.theDAOAllowance.lt(state.stats.theDAOBalance)) {
+            if (state.stats.RedeemerDAOAllowance.lt(state.stats.theDAOBalance)) {
 
                 $("#approve-restore").show();
             } else {
@@ -2776,7 +2839,7 @@
                 return;
             }
 
-            NFT.methods.mint(i).send(
+            Redeemer.methods.mint(i).send(
                 {
                     from: state.selectedAccount,
                     value: 0
@@ -2802,7 +2865,7 @@
         $("#approve-btn, #restore-form button[name=approve]").on('click', async function (e) {
             e.preventDefault();
             let data = "0x095ea7b3000000000000000000000000" + // approve
-                TheDAONFTAddressV2.substring(2) + // Uniswap v2 router
+                RedeemerAddress.substring(2) + // Redeemer
                 "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"; // unlimited
 
             web3.eth.sendTransaction({
@@ -2814,7 +2877,7 @@
                 function (txHash) {
 
                     if (txHash.status) {
-                        toastr.success('You have approved TheDAO NFT to use theDAO token<br>' +
+                        toastr.success('You have approved TheDAO "Redeemer" to use theDAO token<br>' +
                             'TX: ' + txHash.hash, 'DAO Approved');
                         state.isDaoApproved = true;
                         render();
@@ -2906,7 +2969,7 @@
             }
 
             // check approval
-            if (state.stats.theDAOAllowance.lt(state.stats.theDAOBalance)) {
+            if (state.stats.RedeemerDAOAllowance.lt(state.stats.theDAOBalance)) {
                 toastr.error(e.message, 'You you will need to approve TheDAO tokens first');
                 return;
             }

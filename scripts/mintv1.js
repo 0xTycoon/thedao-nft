@@ -1,4 +1,9 @@
-// npx hardhat run scripts/deploy-script.js --network localhost
+// TO RUN THIS SCRIPT:
+// first, be sure to change the REDEEMER_ADDRESS value. Then:
+//
+// $ npx hardhat run scripts/mintv1.js --network localhost
+//
+const REDEEMER_ADDRESS = "0x876939152C56362e17D508B9DEA77a3fDF9e4083";
 const hre = require("hardhat");
 const {ethers} = require("hardhat");
 const tycoon_address = "0xc43473fA66237e9AF3B2d886Ee1205b81B14b2C8";
@@ -7,7 +12,6 @@ async function main() {
     let theDAO = await hre.ethers.getContractAt(TheDAOABI, TheDAOAddress); // TheDAO contract
 
     await theDAO.totalSupply();
-
 
     let v1 = await hre.ethers.getContractAt(TheDAONFTABIV1, TheDAONFTAddressV1);
 
@@ -18,7 +22,8 @@ async function main() {
     let tycoon = await ethers.provider.getSigner(
         tycoon_address
     );
-    await theDAO.connect(tycoon).transfer("0x24EcC5E6EaA700368B8FAC259d3fBD045f695A08", ethers.utils.parseUnits("0.01","ether"));
+    await theDAO.connect(tycoon).transfer(REDEEMER_ADDRESS, ethers.utils.parseUnits("0.01","ether")); // send 10 DAO to contract
+
     //console.log(await v1.balanceOf(v1.address));
     //await v1.connect(tycoon).mint(1);
     //console.log((await v1.balanceOf(v1.address)).toNumber());
