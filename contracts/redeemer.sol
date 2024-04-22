@@ -127,7 +127,6 @@ contract Redeemer {
         emit Burn(owner, _id);
     }
 
-
     /**
     * restore takes out a NFT from the redeemer
     */
@@ -189,8 +188,9 @@ contract Redeemer {
      * restoreLegacy restores v2 & v1 nft that have been burned by the legacy contracts
      * In case of a v1, it will automatically upgrade to v2
      * requires 5 DAO approval to work
-     * 4 DAO will go to the "curator" set in the v1 contract, and 1 will be
-     * kept by the redeemer as a deposit
+     * 4 DAO will go to the "curator" set in the v1 contract, and 1 DAO will be
+     * kept by the redeemer as a deposit. The 1 DAO is taken out of the old
+     * contract using an exploit.
     */
     function restoreLegacy(address _legacy, uint256 _id) external {
         require(_legacy == address(v1) || _legacy == address(v2), "not legacy");
@@ -205,6 +205,7 @@ contract Redeemer {
         l.burn(_id);                                      // exploit, we get 1 DAO back
         l.transferFrom(DEAD_ADDRESS, address(this), _id); // we can get the nft back due to a bug
         if (_legacy == address(v1)) {
+            v1.approve(address(0), _id);                  // clear previous approval
             theDAO.transfer(address(v1), oneDao);         // v1 was drained, so lend our DAO
             uint256[] memory i = new uint256[](1);
             i[0] = _id;
@@ -235,7 +236,7 @@ contract Redeemer {
     * @return uint256[10] the stats
     */
     function getStats(address _user) external view returns(uint256[] memory) {
-        uint[] memory ret = new uint256[](16);
+        uint[] memory ret = new uint256[](18);
         ret[0] = theDAO.balanceOf(_user);                // amount of TheDAO tokens owned by _user
         ret[1] = theDAO.allowance(_user, address(v2));   // amount of DAO this contract is approved to spend
         ret[2] = v1.balanceOf(address(v1));              // how many NFTs left to be minted
@@ -253,15 +254,15 @@ contract Redeemer {
             ret[11] = 1;                                 // has approved v2 for this contract?
         }
         ret[12] = theDAO.balanceOf(address(this));       // how much thedao tokens here
-
         ret[13] = cig.balanceOf(address(this));          // how many cig we have
         if (v1.isApprovedForAll(_user, address(this))) {
             ret[14] = 1;                                 // approved this contract for upgrade?
         }
         ret[15] = uint256(burnedCount);
+        ret[16] = STIMULUS;
+        ret[17] = uint256(uint160(curator));
         return ret;
     }
-
 }
 
 interface IERC20 {
