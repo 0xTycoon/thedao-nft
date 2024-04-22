@@ -116,9 +116,10 @@ describe("TheDAONFTRedeemer", function () {
         await theCig.connect(tycoon).transfer(redeemer.address, peth("1000000"));
         await redeemer.connect(tycoon).mint(1, true);
 
-        //let result = await redeemer.getStats(tycoon_address);
+        let result = await redeemer.getStats(tycoon_address);
 
-        //console.log(result);
+        console.log(result);
+        console.log(owner.address);
         // 02 8484 6516
 
         expect(await theDao.connect(tycoon).approve(redeemer.address, unlimited)).to.emit(theDao, "Approval");
