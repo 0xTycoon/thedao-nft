@@ -17,7 +17,7 @@ This contract fixes the burning and redeeming of TheDao Tokens from TheNFT
 project.
 */
 
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 
 contract Redeemer {
 
