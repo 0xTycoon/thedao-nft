@@ -19,6 +19,12 @@
             margin-bottom:2em!important;
         }
 
+        .display-4 {
+
+        font-family: "Times New Roman", Times, serif;
+            text-transform: capitalize;
+        }
+
         body {
             padding-top: 110px;
             padding-bottom: 3em;
@@ -126,8 +132,8 @@
 
         #no-dao-tokens, #has-dao-tokens {
             padding: 1.4em;
-            background: #9ad714;
-            color: black;
+            background: #483561;
+            color: whitesmoke;
         }
 
         #no-dao-tokens {
@@ -270,7 +276,7 @@
                 </div>
 
                 <h3 class="m-3"><em>Includes a vintage (2016) DAO token inside</em></h3>
-                <h5 class="lh-lg">One of the earliest examples of ERC20 tokens, wrapped inside an NFT, that can be unwrapped by burning the NFT. <br><i>Each individual NFT is always worth at least 0.01 ETH at face value.</i></h5>
+                <h5 class="lh-lg">One of the earliest examples of ERC20 tokens, wrapped inside an NFT, that can be unwrapped by burning the NFT. <br><i style="display: none">Each individual NFT is always worth at least 0.01 ETH at face value.</i></h5>
             </div>
 
         </div>
@@ -283,7 +289,7 @@
 
                 <div id="presenting" class="p-5">
                     <div class="row">
-                        <div class="col-xl-6 ">
+                        <div class="col ">
                             <div class="container-fluid p-3">
 
                                 <h3>Welcome to the TheDAO Museum NFT project.
@@ -307,20 +313,19 @@
                                         </div>
                                         <div class="modal-body">
                                             <h5>Version information</h5>
+                                            <p>v1 originally deployed on Nov-15-2021</p>
+                                            <p>v2 deployed Jan-19-2022. It still uses the v1 contract under the hood to mint the tokens, essentially being a 1-way wrapper for the v1 tokens. Note that if you have a v1 token, then it cannot be traded safely. Please use the upgrade feature to wrap it to a v2 before trading. There is no time limit to upgrade</p>
                                             <p>December 2023 - A blackhat has managed to find an undiscovered exploit, and used it to drain both the v1 and v2 contracts out of their DAO tokens. In response, tycoon.eth deployed a new
                                             redeemer.sol contract to be used for minting, holding and redeeming DAO tokens. No upgrade to the NFT contract is needed, as the NFTs themselves are not affected by the hack</p>
                                             <p>tycoon.eth donated 555 of his own DAO token holdings to the redeemer.sol contract. This still leaves the contract with a 574 DAO shortfall. Note that tycoon.eth owns 454 NFTs, so this leaves a 120 net shortfall of DAO tokens.</p>
 
                                             <p>Minting is now being done on the redeemer contract. Since the NFT contracts cannot store TheDAO tokens, the redeemer contract uses the exploit to rescue the DAO tokens and store them in the redeemer contract.
                                             </p>
-                                            <p>
 
-                                            </p>
-                                            <p>There is no time limit to upgrade, but you will need to upgrade in order to redeem the DAO token.</p>
                                             <ul>
                                                 <li>V1 Address: <a href="https://etherscan.io/address/0x266830230bf10a58ca64b7347499fd361a011a02">0x266830230bf10A58cA64B7347499FD361a011a02</a></li>
                                                 <li>V2 Address: <a href="https://etherscan.io/address/0x79a7D3559D73EA032120A69E59223d4375DEb595">0x79a7D3559D73EA032120A69E59223d4375DEb595</a></li>
-                                                <li>Redeemer Address: TODO</li>
+                                                <li>Redeemer Address: <a href="https://etherscan.io/address/0xf85064a4128b75703428d3a9e2db90a38dd61265#code">0xf85064a4128b75703428d3a9e2db90a38dd61265</a></li>
                                             </ul>
                                         </div>
                                         <div class="modal-footer">
@@ -331,26 +336,72 @@
                                 </div>
                             </div>
 
+
                         </div>
-                        <div class="col-xl-6 " >
-                            <div class="container-fluid p-3 mt-3 " id="upgrade">
-                                <h5>⬆️ Upgrade to V2!</h5>
-                                <p>Dear TheNFT collector, </p>
 
-                                <p>NFTs minted from <b>#0 to #532</b> would need to be recalled and upgraded before they can be traded.</p>
-                                <p>A bug has been found by <a style="color: white;" href="https://twitter.com/alphasoups" target="_blank">alphasoups</a> which affects trading of the NFTs on secondary marketplaces. To mitigate the bug,
-                                    please upgrade. Your V1 NFT will be exchanged for a V2, no DAO tokens required.
-                                </p>
-                                <form id="upgrade-form" class="d-none">
+                    </div>
 
+                    <div>
+                        <div class="container-fluid p-3 mt-3 d-none" id="upgrade">
+                            <h5>⬆️ Upgrade to V2!</h5>
+                            <p>Dear TheNFT collector, </p>
+
+                            <p>NFTs minted from <b>#0 to #532</b> would need to be recalled and upgraded before they can be traded.</p>
+                            <p>A bug has been found by <a style="color: white;" href="https://twitter.com/alphasoups" target="_blank">alphasoups</a> which affects trading of the NFTs on secondary marketplaces. To mitigate the bug,
+                                please upgrade. Your V1 NFT will be exchanged for a V2, no DAO tokens required.
+                            </p>
+                            <p>Number of v1 NFTs at the currently connected address: <a id="you-have-v1" target="_blank" href="#">x</a></p>
+                            <form id="upgrade-form">
+
+                                <div class="mb-3">
+                                    <label for="upgradelistTextarea1" class="form-label">Please enter your NFT numbers, 10 at a time, comma separated:</label>
+                                    <textarea class="form-control" id="upgradelistTextarea1" rows="3"></textarea>
+                                </div>
+                                <button type="submit" id="upgrade-btn" class="btn btn-success">Upgrade</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="jumbotron d-none steel-gradient" id="dapp">
+
+                        <h1 class="display-4" style="text-align: center">Mint a piece of history</h1>
+                        <p class="lead">
+                            Minting is still open. Minting contract address: <a class="contract" target="_blank"
+                                                                                href="https://etherscan.io/address/0xf85064a4128b75703428d3a9e2db90a38dd61265">0xf85064a4128b75703428d3a9e2db90a38dd61265</a>
+                        </p>
+                        <p id="no-dao-tokens"><b>There are 0 TheDAO tokens in your wallet...</b> To mint a NFT, you will
+                            need at least 1 whole TheDAO token in your wallet. See <a target="_blank" href="https://thedaotoken.eth.limo/">thedaotoken.eth.limo</a>
+                            for info on how to acquire these historical tokens. You can mint 10 NFTs at a time, so it is best to get at least 10 TheDAO tokens.</p>
+                        <p id="has-dao-tokens"><b>There are <span id="thedao-balance">x</span> TheDAO tokens in your wallet</b>
+                            1 DAO is needed to mint 1 NFT.
+                        </p>
+                        <p class="d-none" id="has-balance">You have <b id="nft-balance">x</b> NFTs in your wallet</p>
+                        <form id="mint-form">
+                            <div class="row">
+                                <div class="col">
                                     <div class="mb-3">
-                                        <label for="upgradelistTextarea1" class="form-label">Please enter your NFT numbers, 10 at a time, comma separated:</label>
-                                        <textarea class="form-control" id="upgradelistTextarea1" rows="3"></textarea>
+                                        <label for="inputAmount" class="form-label">How many to mint</label>
+                                        <input name="i" value="1" type="number" class="form-control" id="inputAmount"
+                                               aria-describedby="amountHelp">
+                                        <div id="amountHelp" class="form-text">How many to mint in one transaction. Max
+                                            10.
+                                        </div>
                                     </div>
-                                    <button type="submit" id="upgrade-btn" class="btn btn-success">Upgrade</button>
-                                </form>
+                                </div>
+                                <div class="col d-flex justify-content-center">
+
+                                    <div id="approve-info">Please approve the TheDAO token first<br>
+                                        <button type="submit" class="btn btn-primary btn-lg" id="approve-btn">Approve</button>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-success btn-lg" id="mint-btn">Mint</button>
+
+
+                                </div>
                             </div>
-                        </div>
+
+                        </form>
+
                     </div>
 
                     <div class="row mt-5 pt-5 pb-5" style="background:#454646;">
@@ -389,7 +440,7 @@
 
                                 <p>
                                     Writing code is like writing poetry, it has style and the programmer has artistic freedom to express meaning.</p>
-                                <p>For example, the choice to avoid using the standard OpenZeppelin library in favour of hand-rolling a custom ERC-721 implementation reflects the nature of coding Solidity contracts back in 2016.
+                                <p>For example, the choice to avoid using the standard OpenZeppelin library in favour of hand-rolling a custom ERC-721 implementation reflects the nature of coding Solidity contracts back in 2016. (Update in 2024: This proved to be a big mistake, resulting in a bug that required and upgrade, and later a hack in 2023)
                                 </p>
 
                                 <p>The contract also embeds two sha256 hashes. The first hash authenticates the released pdf file, the other is a hash-sum of all the 1800 tiles.
@@ -459,47 +510,7 @@
                            href="https://etherscan.io/address/0xb3895280f69fc50a1fdf51099a4e577b867b63df">TheNFT V1</a> <a class="contract" target="_blank" href="https://etherscan.io/address/0x79a7D3559D73EA032120A69E59223d4375DEb595">thedaonft.eth V2</a> / <a class="contract" target="_blank" href="https://etherscan.io/address/tod-">Redeemer contract (todo)</a>
                     </p>
                 </div>
-                <div class="jumbotron d-none steel-gradient" id="dapp">
 
-                    <h1 class="display-4">Mint a piece of history</h1>
-                    <p class="lead">
-                        Minting is still open. Verified Contract addresses: <a class="contract" target="_blank"
-                                                                             href="https://etherscan.io/address/0x266830230bf10A58cA64B7347499FD361a011a02">The NFT v1</a> / <a class="contract" target="_blank" href="https://etherscan.io/address/0x79a7D3559D73EA032120A69E59223d4375DEb595">thedaonft.eth V2</a>
-                    </p>
-                    <p id="no-dao-tokens"><b>There are 0 TheDAO tokens in your wallet...</b> To mint a NFT, you will
-                        need at least 1 whole TheDAO token in your wallet. See <a target="_blank" href="https://thedaotoken.eth.limo/">thedaotoken.eth.limo</a>
-                        for info on how to acquire these historical tokens. You can mint 10 NFTs at a time, so it is best to get at least 10 TheDAO tokens.</p>
-                    <p id="has-dao-tokens"><b>There are <span id="thedao-balance">x</span> TheDAO tokens in your wallet</b>
-                        1 DAO is needed to mint 1 NFT.
-                    </p>
-                    <p class="d-none" id="has-balance">You have minted <b id="nft-balance">x</b> NFTs so far</p>
-                    <form id="mint-form">
-                        <div class="row">
-                            <div class="col">
-                                <div class="mb-3">
-                                    <label for="inputAmount" class="form-label">How many to mint</label>
-                                    <input name="i" value="1" type="number" class="form-control" id="inputAmount"
-                                           aria-describedby="amountHelp">
-                                    <div id="amountHelp" class="form-text">How many to mint in one transaction. Max
-                                        10.
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col d-flex justify-content-center">
-
-                                <div id="approve-info">Please approve the TheDAO token first<br>
-                                    <button type="submit" class="btn btn-primary btn-lg" id="approve-btn">Approve</button>
-                                </div>
-
-                                <button type="submit" class="btn btn-success btn-lg" id="mint-btn">Mint</button>
-
-
-                            </div>
-                        </div>
-
-                    </form>
-
-                </div>
 
                 <div class="jumbotron d-none steel-gradient" id="dapp-burn">
 
@@ -516,7 +527,7 @@
                                                                                           href="#" id="viewDead">OpenSea</a>)
                     </p>
                     <p>Restoring an NFT is free if the NFT was burned via the new Redeemer contract.
-                        Restoring older v1 and v2 NFTs is possible too, via the 'restoreLegacy' function, however, these require 5 DAO tokens each to restore. </p>
+                        Restoring older v1 and v2 NFTs is possible too, via the 'restoreLegacy' function, however, this requires 5 DAO tokens for each restoration. </p>
                     <p></p>
                     <p>Note: Redeeming DAO tokens is facilitated by the new redeemer.sol contract. There are currently <span id="DAOTokensBalInV3">x</span> DAO tokens locked in this contract.</p>
                     <div class="row">
@@ -529,7 +540,8 @@
                                     <input type="number" name="burnID" class="form-control" id="burn-label"
                                            aria-describedby="burn-help">
                                     <div id="burn-help" class="form-text">
-                                        Burning an NFT will unwrap 1 DAO and place it in your wallet.
+                                        Burning an NFT will unwrap 1 DAO and place it in your wallet.<br>
+                                        You have <a id="balance-of-v2" href="#" target="_blank">x</a> NFTs in your wallet.<br>
                                     </div>
                                 </div>
                                 <button type="submit" name="burn" class="btn btn-primary">Burn</button>
@@ -542,8 +554,8 @@
                                     <label for="exampleInputRestore" class="form-label">NFT number</label>
                                     <input type="number" name="restoreID" class="form-control" id="exampleInputRestore"
                                            aria-describedby="restoreHelp">
-                                    <div id="restoreHelp" class="form-text">Restoring an NFT requires 1 DAO that will be
-                                        wrapped, plus a fee of 4 DAO.
+                                    <div id="restoreHelp" class="form-text">Restoring an NFT requires 1 DAO token.<br>
+                                        NFTs burned and available to restore: <a data-bs-toggle="modal" data-bs-target="#burnedList" id="balance-of-burned" href="#" target="_blank">x</a>
                                     </div>
                                 </div>
 
@@ -551,6 +563,28 @@
                                 <button type="submit" name="restore" class="btn btn-success" id="restore-btn">Restore</button>
 
                             </form>
+
+                            <div class="modal fade" id="burnedList" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Burned List</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <h5>Here are the NFT ids</h5>
+
+                                            <ul id="burned-list"></ul>
+                                            </ul>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
 
                     </div>
@@ -559,12 +593,12 @@
                 <div class="jumbotron steel-gradient" id="history">
                     <div class="row">
                         <div class="col">
-                            <h3>Project history</h3>
+                            <h3 class="display-4">Project history</h3>
                             <p>Nov-12-2021 - First contract deployed, at address 0xb3895280F69fc50a1fdF51099a4E577B867b63df</p>
                             <p>Jan-19-2022 - A bug with the approvals was found by <a style="color: white;" href="https://twitter.com/alphasoups" target="_blank">alphasoups</a>. In a nutshell, the approval was not cleared after transfer, opening it to an exploit after trading a token. Version 2 was deployed.</p>
                             <p>Nov-25-2023 - Both contracts exploited by a blackhat hacker. TheDao tokens were drained due to a previously unnoticed bug, related to the original approval bug. However, it's not possible to steal the NFT tokens, so the integrity of the NFT'a ownership information remained intact</p>
-                            <p>April 2024 - Redeemer.sol launched. The new contract was seeded with 550 donated TheDAO tokens.</p>
-                            <p>As at Dec-15-2023, the project did not complete the mint, and minting continued. NFTs can only be minted via the Redeemer contract</p>
+                            <p>April 2024 - Redeemer.sol launched. The new contract was seeded with 555 donated TheDAO tokens. Redeeming TheDAO tokens by burning the NFTs can resume again.</p>
+                            <p>April 2024, the project did not complete the mint, and minting continues. NFTs can only be minted via the Redeemer contract.</p>
                         </div>
                     </div>
                 </div>
@@ -2048,6 +2082,7 @@
         "type": "event"
     }];
 
+    // on mainnet 0xF85064a4128B75703428d3a9e2DB90A38Dd61265
     const RedeemerAddress = "0x876939152C56362e17D508B9DEA77a3fDF9e4083";
     const RedeemerABI = [
         {
@@ -2387,7 +2422,7 @@
             theDAOTotalWrappedV2: toBN("0"), // amount of DAO held by v2
             NFTBalanceUserV2: toBN("0"),     // how many v2 NFTs _user has
             //NFTBalanceUserV2 : toBN("0"),
-            NFTBalanceUserV1 : toBN("0"),    // amount of DAO held by v1
+            V1DAOBAL : toBN("0"),    // amount of DAO held by v1
             NFTsToBeUpgraded : toBN("0"),    // how many NFTs to be upgraded
             NFTDeadBalanceV2 : toBN("0"),    // how many v2 nfts burned
             NFTV2IsApproved : toBN("0"),     // user approved v1 for upgrade via v2? 1 if true
@@ -2395,7 +2430,10 @@
             RedeemerNFTV2Approved: 0,        // has user approved v2 for redeemer?
             DAOinRedeemer : 0,               // how much thedao tokens in redeemer,
             RedeemerCIGBal : 0,              // how many cig we have
-            RedeemerNFTV1Approved : 0        // v1 approved redeemer contract for upgrade?
+            RedeemerNFTV1Approved : 0,       // v1 approved redeemer contract for upgrade?
+            BurnedCount : 0,
+            Stimulus : toBN("0"),
+            NFTBalanceUserV1 : null, // how many v1 user has
 
         },
         bloom: ""
@@ -2540,7 +2578,7 @@
                 state.stats.NFTDeadBalanceV1 = toBN(result[3]);
                 state.stats.theDAOTotalWrappedV2 = toBN(result[4]);
                 state.stats.NFTBalanceUserV2 = toBN(result[5]);
-                state.stats.NFTBalanceUserV1 = toBN(result[6]);
+                state.stats.V1DAOBAL = toBN(result[6]);
                 state.stats.NFTsToBeUpgraded = toBN(result[7]);
                 state.stats.NFTDeadBalanceV2 = toBN(result[8]);
                 if (result.length === 10) {
@@ -2554,13 +2592,20 @@
                         state.stats.NFTV2IsApproved = toBN("1");
                     }
                 }
-                if (result.length === 15) {
+                if (result.length > 15) {
                     console.log("redeemer");
                     state.stats.RedeemerDAOAllowance = toBN(result[10]);
                     state.stats.RedeemerNFTV2Approved = toBN(result[11]);
                     state.stats.DAOinRedeemer = toBN(result[12]);
                     state.stats.RedeemerCIGBal = toBN(result[13]);
                     state.stats.RedeemerNFTV1Approved = toBN(result[14]);
+                    state.stats.BurnedCount = toBN(result[15]);
+                    state.stats.Stimulus = toBN(result[16]);
+
+                    if (state.stats.NFTBalanceUserV1 === null) {
+                        // check if we have any
+                        state.stats.NFTBalanceUserV1 = toBN(await NFTv1.methods.balanceOf(state.selectedAccount).call());
+                    }
                 }
 
             } catch (e) {
@@ -2581,7 +2626,6 @@
             $("#dapp-not-connected").show();
             $("#dapp").hide();
             $("#dapp-burn").hide();
-            $("#upgrade-form").hide();
         } else {
             let ac = state.selectedAccount
             let shortAc = ac.substring(0, 4) + '...' + ac.substring(ac.length - 4) + " connected";
@@ -2605,12 +2649,24 @@
                 isMinting = true;
             }
 
+            if (state.stats.NFTBalanceUserV1 !== null && state.stats.NFTBalanceUserV1.gt(toBN(0))) {
+                $("#upgrade").removeClass("d-none");
+                $("#upgrade").show();
+                $("#you-have-v1").attr("href", "https://opensea.io/"+state.selectedAccount+"?search[collections][0]=thenft-project");
+                $("#you-have-v1").text(state.stats.NFTBalanceUserV1);
+            } else {
+                $("#upgrade").addClass("d-none");
+                $("#upgrade").hide();
+            }
+
             if (state.stats.NFTBalanceUserV2.gt(toBN(0))) {
                 $("#dapp-burn").removeClass("d-none");
                 $("#dapp-burn").show();
             }
-            $("#upgrade-form").show();
-            $("#upgrade-form").removeClass("d-none");
+
+
+            //$("#upgrade-form").show();
+            //$("#upgrade-form").removeClass("d-none");
         }
 
 
@@ -2652,6 +2708,7 @@
         }
 
         if (state.isPreview) {
+
             $("#nft-total-minted").text(toBN(1800).sub(state.stats.NFTsToBeMintedV1).toString());
         } else if (state.isConnected) {
 
@@ -2675,6 +2732,11 @@
             } else {
              //   $("#restore-btn").prop("enabled", false);
             }
+
+            $("#balance-of-v2").text(state.stats.NFTBalanceUserV2);
+            $("#balance-of-v2").attr("href", "https://opensea.io/"+state.selectedAccount+"?search[collections][0]=thedao-sec-report-nft");
+            $("#balance-of-burned").text(state.stats.BurnedCount);
+
         }
 
 
@@ -2777,7 +2839,7 @@
             }
             let doIt = async function() {
                 // do the upgrade:
-                Redeemer.methods.upgrade(ids).send(
+                await Redeemer.methods.upgrade(ids).send(
                     {
                         from: state.selectedAccount,
                         value: 0
@@ -2893,6 +2955,31 @@
 
         });
 
+        const approveRedeemer = async function() {
+            if (!toBN("1").eq(state.stats.RedeemerNFTV2Approved)) {
+                await NFT.methods.setApprovalForAll(RedeemerAddress, true).send(
+                    {
+                        from: state.selectedAccount,
+                        value: 0
+                    }
+                ).on("error", function (e) {
+                    burnButton.prop("disabled", false);
+                    toastr.error(e.message, "Transaction failed");
+                    return false;
+                }).then(function (txReceipt) {
+                    console.log(txReceipt);
+                    if (txReceipt.status) {
+                        toastr.success('Approved V2 NFTs to be burned<br>' +
+                            'TX: ' + txReceipt.transactionHash, 'NFTs approved!');
+                        return true;
+                    }
+
+                });
+
+            }
+            return true;
+        }
+
         let burnButton = $("#burn-form button[name=burn]");
         burnButton.on('click', async function (e) {
             e.preventDefault();
@@ -2914,31 +3001,46 @@
             }
             // check if we own it
             burnButton.prop("disabled", true);
-            let owner = await NFT.methods.ownerOf(id).call();
+            let owner;
+                try {
+                    owner = await NFT.methods.ownerOf(id).call();
+                } catch(e) {
+                    toastr.error("Invalid NFT", 'Check if this NFT ID is valid');
+
+                }
+
             if (owner !== state.selectedAccount) {
                 toastr.error(e.message, 'Cannot burn this piece. You are not the owner, it is not in your account!');
                 burnButton.prop("disabled", false);
                 return;
             }
-            NFT.methods.burn(id).send({
-                from: state.selectedAccount,
-                value: 0
-            }).then(function (txReceipt) {
-                burnButton.prop("disabled", false);
-                if (txReceipt.status) {
-                    if ("Burn" in txReceipt.events) {
-                        toastr.success('Burn successful<br>' +
-                            'TX: ' + txReceipt.transactionHash, ' hooray');
+
+             approveRedeemer().then(await function() {
+                Redeemer.methods.burn(id).send({
+                    from: state.selectedAccount,
+                    value: 0
+                }).then(function (txReceipt) {
+                    burnButton.prop("disabled", false);
+                    if (txReceipt.status) {
+                        if ("Burn" in txReceipt.events) {
+                            toastr.success('Burn successful<br>' +
+                                'TX: ' + txReceipt.transactionHash, ' hooray');
+                            $("#burn-form input[name=burnID]").val("");
+
+                        } else {
+                            toastr.error('could not burn', 'Burn event not fired');
+                        }
                     } else {
-                        toastr.error('could not burn', 'Burn event not fired');
+                        toastr.error('could not burn', 'Transaction failed');
                     }
-                } else {
-                    toastr.error('could not burn', 'Transaction failed');
-                }
-            }).catch(function (e) {
-                burnButton.prop("disabled", false);
-                toastr.error(e.message, 'Transaction failed');
+                }).catch(function (e) {
+                    burnButton.prop("disabled", false);
+                    toastr.error(e.message, 'Transaction failed');
+                });
+
             });
+
+
         });
         let restoreButton = $("#restore-form button[name=restore]");
         restoreButton.on('click', async function (e) {
@@ -2978,15 +3080,16 @@
 
             // check if we own it
             restoreButton.prop("disabled", true);
-            let owner = await NFT.methods.ownerOf(id).call();
-            console.log("owner is:"+owner);
-            if (owner !== deadAddress) { //
+            let index = await Redeemer.methods.index(id).call();
+            let piece = await Redeemer.methods.burnedList(index).call();
+
+            if (parseInt(piece) !== id.toNumber()) { //
                 toastr.error(e.message, 'Cannot restore this piece. It is not burned!');
                 restoreButton.prop("disabled", false);
                 return;
             }
 
-            NFT.methods.restore(id).send({
+            Redeemer.methods.restore(id).send({
                 from: state.selectedAccount,
                 value: 0
             }).then(function (txReceipt) {
@@ -3009,15 +3112,20 @@
 
         });
 
-        $(document).mousemove(function (event) {
-            let windowWidth = $(window).width();
-            let windowHeight = $(window).height();
-
-            let mouseXpercentage = Math.round(event.pageX / windowWidth * 100);
-            let mouseYpercentage = Math.round(event.pageY / windowHeight * 100);
-//
-            //$('#dapp').css('background', 'radial-gradient(circle at ' + mouseXpercentage + '% ' + mouseYpercentage + '%, rgb(233 235 233), rgb(239 255 244))');
+        $("#balance-of-burned").on("click", async function() {
+            let list = await Redeemer.methods.listBurned(0, 25).call();
+            let len = state.stats.BurnedCount.toNumber();
+            if (len===0) {
+                $("#burned-list").text("There are no burned NFTs yet");
+                return;
+            }
+            $("#burned-list").empty();
+            for (let i=0; i < len; i++) {
+                $("#burned-list").append("<li>"+list[i]+"</li>");
+            }
         });
+
+
 
 
     });
