@@ -25,8 +25,8 @@ contract Redeemer {
     ITheNFT public v2;
 
     // TheDAO stuff
-    IERC20 private immutable theDAO;                           // the contract of TheDAO, the greatest DAO of all time
-    uint256 private constant oneDao = 1e16;                    // 1 DAO = 16^10 wei or 0.01 ETH
+    IERC20 private immutable theDAO;                             // the contract of TheDAO, the greatest DAO of all time
+    uint256 private constant oneDao = 1e16;                      // 1 DAO = 16^10 wei or 0.01 ETH
 
     event Burn(address owner, uint256 tokenId);
     event Restore(address owner, uint256 tokenId);
@@ -40,8 +40,8 @@ contract Redeemer {
     address private curator;
 
     uint64 private burnedCount;
-    mapping(uint64 => uint256) public burnedList; // track enumeration (0 => id1, 1 => id4, 2 => id2 ...)
-    mapping(uint256 => uint64) public index;      // sequential index in the burnedList of an nft
+    mapping(uint64 => uint256) public burnedList;                // track enumeration (0 => id1, 1 => id4, 2 => id2 ...)
+    mapping(uint256 => uint64) public index;                     // sequential index in the burnedList of an nft
 
     constructor(
         address _v1,     // 0x266830230bf10a58ca64b7347499fd361a011a02
