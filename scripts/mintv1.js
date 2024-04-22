@@ -25,10 +25,11 @@ async function main() {
     await theDAO.connect(tycoon).transfer(REDEEMER_ADDRESS, ethers.utils.parseUnits("0.01","ether")); // send 10 DAO to contract
 
     //console.log(await v1.balanceOf(v1.address));
-    //await v1.connect(tycoon).mint(1);
-    //console.log((await v1.balanceOf(v1.address)).toNumber());
+    console.log("minting a v1 token");
+    await v1.connect(tycoon).mint(1);
+    console.log((await v1.balanceOf(v1.address)).toNumber());
     console.log((await v1.balanceOf(tycoon_address)).toNumber());
-    console.log((await v1.ownerOf(1079)));
+   // console.log((await v1.ownerOf(1079)));
 
 
 }
