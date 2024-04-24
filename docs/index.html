@@ -375,6 +375,7 @@
                         <p id="has-dao-tokens"><b>There are <span id="thedao-balance">x</span> TheDAO tokens in your wallet</b>
                             1 DAO is needed to mint 1 NFT.
                         </p>
+                        <p id="bonus-info"><img src="img/cig-logo-orange32.png"> Bonus Now Active: Every mint receives <span id="cig-reward"></span> CIG per NFT minted! (While there's enough CIG in the contract) </p>
                         <p class="d-none" id="has-balance">You have <b id="nft-balance">x</b> NFTs in your wallet</p>
                         <form id="mint-form">
                             <div class="row">
@@ -502,7 +503,7 @@
                 </div>
 
                 <div class="jumbotron d-none" id="minting-finished">
-                    <h1 class="display-4">Minting finished</h1>
+                    <h1 class="display-4">Minting completed</h1>
                     <p class="lead">
                         All 1800 NFTs have been minted and only available on the secondary market such as <a
                             href="https://opensea.io/collection/thedao-sec-report-nft">OpenSea</a>. Verified Contract addresses:
@@ -593,7 +594,7 @@
                 <div class="jumbotron steel-gradient" id="history">
                     <div class="row">
                         <div class="col">
-                            <h3 class="display-4">Project history</h3>
+                            <h3 class="display-4">Project's history</h3>
                             <p>Nov-12-2021 - First contract deployed, at address 0xb3895280F69fc50a1fdF51099a4E577B867b63df</p>
                             <p>Jan-19-2022 - A bug with the approvals was found by <a style="color: white;" href="https://twitter.com/alphasoups" target="_blank">alphasoups</a>. In a nutshell, the approval was not cleared after transfer, opening it to an exploit after trading a token. Version 2 was deployed.</p>
                             <p>Nov-25-2023 - Both contracts exploited by a blackhat hacker. TheDao tokens were drained due to a previously unnoticed bug, related to the original approval bug. However, it's not possible to steal the NFT tokens, so the integrity of the NFT'a ownership information remained intact</p>
@@ -2664,6 +2665,8 @@
                 $("#dapp-burn").show();
             }
 
+            $("#DAOTokensBalInV3").text(feth(toDAO(state.stats.DAOinRedeemer)));
+
 
             //$("#upgrade-form").show();
             //$("#upgrade-form").removeClass("d-none");
@@ -2736,6 +2739,14 @@
             $("#balance-of-v2").text(state.stats.NFTBalanceUserV2);
             $("#balance-of-v2").attr("href", "https://opensea.io/"+state.selectedAccount+"?search[collections][0]=thedao-sec-report-nft");
             $("#balance-of-burned").text(state.stats.BurnedCount);
+
+            if (state.stats.RedeemerCIGBal.gt(state.stats.Stimulus)) {
+                $("#bonus-info").show();
+            } else {
+                $("#bonus-info").hide();
+            }
+
+            $("#cig-reward").text(feth(state.stats.Stimulus));
 
         }
 
@@ -2851,6 +2862,7 @@
                     upgradeBtn.prop("disabled", false);
                     console.log(txReceipt);
                     if (txReceipt.status) {
+                        state.stats.NFTBalanceUserV1 = null;
                         toastr.success('You upgraded your NFTs to v2<br>' +
                             'TX: ' + txReceipt.transactionHash, 'NFTs upgraded!');
                     }
@@ -2900,8 +2912,12 @@
                 toastr.error(e.message, 'You do not have enough DAO tokens to mint this much');
                 return;
             }
+            let rewards = false;
+            if (state.stats.RedeemerCIGBal.gt(state.stats.Stimulus)) {
+                rewards = true;
+            }
 
-            Redeemer.methods.mint(i).send(
+            Redeemer.methods.mint(i, rewards).send(
                 {
                     from: state.selectedAccount,
                     value: 0

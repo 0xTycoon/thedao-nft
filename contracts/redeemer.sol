@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// https://thedaonft.eth.limo/
 
 pragma solidity ^0.8.11;
 
@@ -11,10 +12,12 @@ pragma solidity ^0.8.11;
  #+#     #+#    #+# #+#        #+#   #+#+# #+#            #+#
 ###     ###    ### ########## ###    #### ###            ###
 
-Burn & redeem TheNft tokens and other utilities
+Burn & redeem TheNft tokens and other utilities.
 
 This contract fixes the burning and redeeming of TheDao Tokens from TheNFT
 project.
+
+Version 0.2
 */
 
 //import "hardhat/console.sol";
@@ -32,7 +35,6 @@ contract Redeemer {
     event Restore(address owner, uint256 tokenId);
 
     address private constant DEAD_ADDRESS = address(0x74eda0);   // unwrapped NFTs go here (old)
-    address private constant DEAD_ADDRESS2 = address(0x74eda02); // unwrapped NFTs go here (redeemer)
 
     IERC20 private immutable cig;
     uint256 public STIMULUS = 15000 ether;
@@ -83,8 +85,10 @@ contract Redeemer {
         while (_i > 0) {
             _rescue(id);                                   // get the dao token out and store it here
             v2.transferFrom(address(this), msg.sender, id);// send to minter
-            _i--;
-            id++;
+            unchecked {
+                _i--;                                      // underflow checked in while condition
+                id++;                                      // cannot overflow
+            }
         }
     }
 
@@ -120,10 +124,11 @@ contract Redeemer {
     */
     function burn(uint256 _id) external {
         address owner = v2.ownerOf(_id);
+        require (owner == msg.sender);                     // burn request must come from owner
         require(owner != address(this), "already burned");
-        v2.transferFrom(owner, address(this), _id);// burns & clears approval
+        v2.transferFrom(owner, address(this), _id);        // burns & clears approval
         _addBurned(_id);
-        theDAO.transfer(owner, oneDao);            // send 1 DAO back
+        theDAO.transfer(owner, oneDao);                    // send 1 DAO back
         emit Burn(owner, _id);
     }
 
@@ -144,9 +149,11 @@ contract Redeemer {
     */
     function _addBurned(uint256 _id) private {
         uint64 c = burnedCount;
-        burnedList[c] = _id;    // append
-        index[_id] = c;         // save the index.
-        burnedCount++;          // update balance
+        burnedList[c] = _id;     // append
+        index[_id] = c;          // save the index.
+        unchecked{
+            burnedCount = c + 1; // update balance
+        }
     }
 
     /**
@@ -236,7 +243,7 @@ contract Redeemer {
     * @return uint256[10] the stats
     */
     function getStats(address _user) external view returns(uint256[] memory) {
-        uint[] memory ret = new uint256[](18);
+        uint[] memory ret = new uint256[](19);
         ret[0] = theDAO.balanceOf(_user);                // amount of TheDAO tokens owned by _user
         ret[1] = theDAO.allowance(_user, address(v2));   // amount of DAO this contract is approved to spend
         ret[2] = v1.balanceOf(address(v1));              // how many NFTs left to be minted
@@ -258,9 +265,10 @@ contract Redeemer {
         if (v1.isApprovedForAll(_user, address(this))) {
             ret[14] = 1;                                 // approved this contract for upgrade?
         }
-        ret[15] = uint256(burnedCount);
-        ret[16] = STIMULUS;
-        ret[17] = uint256(uint160(curator));
+        ret[15] = uint256(burnedCount);                  // how many burned pieces
+        ret[16] = STIMULUS;                              // how much reward for minting
+        ret[17] = uint256(uint160(curator));             // curator's address
+        ret[18] = v1.balanceOf(_user);                   // balance of pieces user can upgrade
         return ret;
     }
 }
