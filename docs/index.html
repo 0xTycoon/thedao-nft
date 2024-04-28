@@ -325,7 +325,7 @@
                                             <ul>
                                                 <li>V1 Address: <a href="https://etherscan.io/address/0x266830230bf10a58ca64b7347499fd361a011a02">0x266830230bf10A58cA64B7347499FD361a011a02</a></li>
                                                 <li>V2 Address: <a href="https://etherscan.io/address/0x79a7D3559D73EA032120A69E59223d4375DEb595">0x79a7D3559D73EA032120A69E59223d4375DEb595</a></li>
-                                                <li>Redeemer Address: <a href="https://etherscan.io/address/0xf85064a4128b75703428d3a9e2db90a38dd61265#code">0xf85064a4128b75703428d3a9e2db90a38dd61265</a></li>
+                                                <li>Redeemer Address: <a href="https://etherscan.io/address/0x01d7b7728e41564f63ef8989a1d827f5e4e6e56c#code">0x01d7b7728e41564f63ef8989a1d827f5e4e6e56c</a></li>
                                             </ul>
                                         </div>
                                         <div class="modal-footer">
@@ -367,7 +367,7 @@
                         <h1 class="display-4" style="text-align: center">Mint a piece of history</h1>
                         <p class="lead">
                             Minting is still open. Minting contract address: <a class="contract" target="_blank"
-                                                                                href="https://etherscan.io/address/0xf85064a4128b75703428d3a9e2db90a38dd61265">0xf85064a4128b75703428d3a9e2db90a38dd61265</a>
+                                                                                href="https://etherscan.io/address/0x01d7b7728e41564f63ef8989a1d827f5e4e6e56c">0x01d7b7728e41564f63ef8989a1d827f5e4e6e56c</a>
                         </p>
                         <p id="no-dao-tokens"><b>There are 0 TheDAO tokens in your wallet...</b> To mint a NFT, you will
                             need at least 1 whole TheDAO token in your wallet. See <a target="_blank" href="https://thedaotoken.eth.limo/">thedaotoken.eth.limo</a>
@@ -375,7 +375,7 @@
                         <p id="has-dao-tokens"><b>There are <span id="thedao-balance">x</span> TheDAO tokens in your wallet</b>
                             1 DAO is needed to mint 1 NFT.
                         </p>
-                        <p id="bonus-info"><img src="img/cig-logo-orange32.png"> Bonus Now Active: Every mint receives <span id="cig-reward"></span> CIG per NFT minted! (While there's enough CIG in the contract) </p>
+                        <p id="bonus-info"><img src="img/cig-logo-orange32.png"> Bonus Now Active: Every mint receives <span id="cig-reward">?</span> CIG per NFT minted! (While there's enough CIG in the contract) </p>
                         <p class="d-none" id="has-balance">You have <b id="nft-balance">x</b> NFTs in your wallet</p>
                         <form id="mint-form">
                             <div class="row">
@@ -508,7 +508,7 @@
                         All 1800 NFTs have been minted and only available on the secondary market such as <a
                             href="https://opensea.io/collection/thedao-sec-report-nft">OpenSea</a>. Verified Contract addresses:
                         <a class="contract" target="_blank"
-                           href="https://etherscan.io/address/0xb3895280f69fc50a1fdf51099a4e577b867b63df">TheNFT V1</a> <a class="contract" target="_blank" href="https://etherscan.io/address/0x79a7D3559D73EA032120A69E59223d4375DEb595">thedaonft.eth V2</a> / <a class="contract" target="_blank" href="https://etherscan.io/address/tod-">Redeemer contract (todo)</a>
+                           href="https://etherscan.io/address/0xb3895280f69fc50a1fdf51099a4e577b867b63df">TheNFT V1</a> <a class="contract" target="_blank" href="https://etherscan.io/address/0x79a7D3559D73EA032120A69E59223d4375DEb595">thedaonft.eth V2</a> / <a class="contract" target="_blank" href="https://etherscan.io/address/0x01d7b7728e41564f63ef8989a1d827f5e4e6e56c#code">Redeemer</a>
                     </p>
                 </div>
 
@@ -2083,8 +2083,8 @@
         "type": "event"
     }];
 
-    // on mainnet 0xF85064a4128B75703428d3a9e2DB90A38Dd61265
-    const RedeemerAddress = "0x876939152C56362e17D508B9DEA77a3fDF9e4083";
+    // on mainnet 0x01d7b7728e41564f63ef8989a1d827f5e4e6e56c
+    const RedeemerAddress = "0x01d7b7728e41564f63ef8989a1d827f5e4e6e56c";
     const RedeemerABI = [
         {
             "inputs": [
@@ -2602,11 +2602,7 @@
                     state.stats.RedeemerNFTV1Approved = toBN(result[14]);
                     state.stats.BurnedCount = toBN(result[15]);
                     state.stats.Stimulus = toBN(result[16]);
-
-                    if (state.stats.NFTBalanceUserV1 === null) {
-                        // check if we have any
-                        state.stats.NFTBalanceUserV1 = toBN(await NFTv1.methods.balanceOf(state.selectedAccount).call());
-                    }
+                    state.stats.NFTBalanceUserV1 = toBN(result[18]);
                 }
 
             } catch (e) {
@@ -2736,19 +2732,19 @@
              //   $("#restore-btn").prop("enabled", false);
             }
 
-            $("#balance-of-v2").text(state.stats.NFTBalanceUserV2);
-            $("#balance-of-v2").attr("href", "https://opensea.io/"+state.selectedAccount+"?search[collections][0]=thedao-sec-report-nft");
-            $("#balance-of-burned").text(state.stats.BurnedCount);
-
-            if (state.stats.RedeemerCIGBal.gt(state.stats.Stimulus)) {
-                $("#bonus-info").show();
-            } else {
-                $("#bonus-info").hide();
-            }
-
-            $("#cig-reward").text(feth(state.stats.Stimulus));
-
         }
+
+        $("#balance-of-v2").text(state.stats.NFTBalanceUserV2);
+        $("#balance-of-v2").attr("href", "https://opensea.io/"+state.selectedAccount+"?search[collections][0]=thedao-sec-report-nft");
+        $("#balance-of-burned").text(state.stats.BurnedCount);
+
+        if (state.stats.RedeemerCIGBal.gt(state.stats.Stimulus)) {
+            $("#bonus-info").show();
+        } else {
+            $("#bonus-info").hide();
+        }
+
+        $("#cig-reward").text(feth(state.stats.Stimulus));
 
 
     }
@@ -2862,7 +2858,6 @@
                     upgradeBtn.prop("disabled", false);
                     console.log(txReceipt);
                     if (txReceipt.status) {
-                        state.stats.NFTBalanceUserV1 = null;
                         toastr.success('You upgraded your NFTs to v2<br>' +
                             'TX: ' + txReceipt.transactionHash, 'NFTs upgraded!');
                     }
@@ -2924,12 +2919,8 @@
                 }
             ).then(function (txReceipt) {
                 if (txReceipt.status) {
-                    if ("Mint" in txReceipt.events) {
-                        toastr.success('Mint successful<br>' +
-                            'TX: ' + txReceipt.transactionHash, ' hooray');
-                    } else {
-                        toastr.error('could not mint', 'Mint event not fired');
-                    }
+                    toastr.success('Mint successful<br>' +
+                        'TX: ' + txReceipt.transactionHash, ' hooray');
 
                 } else {
                     toastr.error('could not mint', 'Transaction failed');

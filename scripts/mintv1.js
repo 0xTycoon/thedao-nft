@@ -3,7 +3,7 @@
 //
 // $ npx hardhat run scripts/mintv1.js --network localhost
 //
-const REDEEMER_ADDRESS = "0x876939152C56362e17D508B9DEA77a3fDF9e4083";
+const REDEEMER_ADDRESS = "0xEC7cb8C3EBE77BA6d284F13296bb1372A8522c5F";
 const hre = require("hardhat");
 const {ethers} = require("hardhat");
 const tycoon_address = "0xc43473fA66237e9AF3B2d886Ee1205b81B14b2C8";
